@@ -4,11 +4,42 @@ import pandas as pd
 import plotly.graph_objs as go
 from PIL import Image
 
+st.title("🏘️ Rental Property Analyzer")
+
 # Load and display logo (uncomment if you want to use)
 # logo = Image.open(r"C:\Users\jacob\OneDrive\Desktop\rent_app\logo.jpg")
 # st.image(logo, width=150)
 
 st.markdown("#### Created by **Jacob K..**")
+
+def convert_df_to_csv(df):
+    return df.to_csv(index=False).encode('utf-8')
+
+    t.header("🏠 Address-Based Quick Profitability Check")
+
+address_input = st.text_input("Enter Property Address", placeholder="123 Main St, Fargo, ND")
+if st.button("Analyze Address") and address_input:
+    # Generate mock estimates
+    mock_rent = np.random.randint(1200, 2400)
+    mock_taxes = np.random.randint(2000, 4000)
+    mock_insurance = np.random.randint(800, 1600)
+    mock_hoa = np.random.choice([0, 50, 100])
+    mock_utilities = np.random.randint(150, 300)
+    mock_maintenance_pct = 5
+    mock_mgmt_pct = 8
+    vacancy = 5
+
+    # Display generated inputs
+    st.subheader(f"📍 Mock Estimates for {address_input}")
+    st.write(f"- Estimated Monthly Rent: **${mock_rent}**")
+    st.write(f"- Estimated Annual Taxes: **${mock_taxes}**")
+    st.write(f"- Estimated Annual Insurance: **${mock_insurance}**")
+    st.write(f"- HOA Fees Monthly: **${mock_hoa}**")
+    st.write(f"- Utilities / Other Monthly: **${mock_utilities}**")
+    st.write(f"- Maintenance: **{mock_maintenance_pct}% of rent**")
+    st.write(f"- Property Management: **{mock_mgmt_pct}% of rent**")
+    st.write(f"- Vacancy Rate: **{vacancy}%**")
+
 
 # --- Calculation and Helper Functions ---
 
@@ -163,10 +194,12 @@ def plot_pie_chart(labels, sizes, colors, title):
 def convert_df_to_csv(df):
     return df.to_csv(index=False).encode('utf-8')
 
+    
+
 # --- STREAMLIT UI ---
 
 st.set_page_config(page_title="Advanced Rental Property Analyzer", layout="wide")
-st.title("🏘️ Rental Property Analyzer")
+
 
 # Layout: Simple and Advanced inputs side by side
 col_simple, col_advanced = st.columns(2)
@@ -423,4 +456,3 @@ with st.expander("📖 Legend: Key Terms Explained", expanded=False):
 
     **Rent Growth Rate:** Expected annual increase in rent charged.
     """)
-
