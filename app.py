@@ -1,5 +1,3 @@
-
-
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -8,7 +6,7 @@ import numpy_financial as npf
 import re
 
 # --- PAGE CONFIGURATION ---
-st.set_page_config(page_title="🏘️ Rental Analyzer UI", layout="wide")
+st.set_page_config(page_title="🏨 Rental Analyzer UI", layout="wide")
 st.title("🏠 Rental Property Investment Analyzer")
 st.subheader("Made By: Jacob Klingman.")
 
@@ -20,17 +18,9 @@ with st.expander("📍 One-Line Address Lookup"):
         maps_url = f"https://www.google.com/maps/search/{full_address_input.replace(' ', '+')}"
 
         zip_rent_map = {
-       
-            "58104": 1300,
-            "58103": 1100,
-            "58102": 1200,
-            "58047": 2300,
-            "58105": 1100,
-            "58109": 950,
-            "58125": 1000,
-            "58122": 950,
-            "58124": 900,
-            "58123": 900,
+            "58104": 1300, "58103": 1100, "58102": 1200, "58047": 2300,
+            "58105": 1100, "58109": 950, "58125": 1000, "58122": 950,
+            "58124": 900, "58123": 900,
         }
         zip_match = re.search(r"(\d{5})", full_address_input)
         if zip_match:
@@ -40,12 +30,7 @@ with st.expander("📍 One-Line Address Lookup"):
                 st.info(f"💰 Estimated average rent for ZIP {zip_code}: ${avg_rent:,.0f}")
             else:
                 st.warning(f"No rent data available for ZIP {zip_code}.")
-        st.markdown(f"[🗺️ View on Google Maps]({maps_url})")
-
-
-
-    
-
+        st.markdown(f"[🗘️ View on Google Maps]({maps_url})")
 
 # --- HELPER FUNCTIONS ---
 def mortgage_payment_calc(loan_amount, annual_interest_rate, loan_term_years):
@@ -92,21 +77,23 @@ def calculate_cashflows(purchase_price, down_payment, loan_amount, loan_term_yea
         mgmt_fee = rent * (mgmt_fee_percent / 100)
         maintenance = rent * (maintenance_percent / 100)
         monthly_tax = tax_annual / 12
-        monthly_tax = tax_annual / 12
         monthly_insurance = insurance_annual / 12
 
         expenses = sum([
-        monthly_expenses, vacancy_loss, mgmt_fee,
-        maintenance, monthly_tax, monthly_insurance, hoa_monthly
-      ])
+            monthly_expenses, vacancy_loss, mgmt_fee,
+            maintenance, monthly_tax, monthly_insurance, hoa_monthly
+        ])
+        mortgage_payment = mortgage_payment_calc(loan_amount, interest_rate, loan_term_years) if include_mortgage else 0
+        total_expenses = expenses + mortgage_payment if include_expenses else 0
+        net_cash_flow = rent - total_expenses
+        cash_flows.append(net_cash_flow)
+
     return {"cash_flows": cash_flows, "rents": rents, "schedule": schedule}
 
 def calculate_irr(cash_flows, down_payment):
     try:
         irr = npf.irr([-down_payment] + list(cash_flows))
-        if irr is None or np.isnan(irr):
-            return None
-        return irr * 100
+        return None if irr is None or np.isnan(irr) else irr * 100
     except:
         return None
 
@@ -119,12 +106,6 @@ def calculate_npv(cash_flows, down_payment, discount_rate):
 def plot_line_chart(x, y, title, yaxis_title, color):
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=x, y=y, mode='lines', line=dict(color=color, width=3)))
-    fig.update_layout(title=title, xaxis_title='Months', yaxis_title=yaxis_title, template='plotly_white')
-    return fig
-
-def plot_area_chart(x, y, title, yaxis_title, color):
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=x, y=y, mode='lines', fill='tozeroy', line=dict(color=color, width=3)))
     fig.update_layout(title=title, xaxis_title='Months', yaxis_title=yaxis_title, template='plotly_white')
     return fig
 
@@ -145,62 +126,37 @@ with col3:
 col4, col5 = st.columns(2)
 with col4:
     interest_rate = st.number_input("Interest Rate (%)", 0.0, 10.0, 6.5)
-with col5:
-    years = st.number_input("Projection Period (years)", 1, 30, 5)
 
 # --- DEFAULTS ---
 current_rent = tax_annual = insurance_annual = vacancy_rate = monthly_expenses = 0
 mgmt_fee_percent = maintenance_percent = hoa_monthly = rent_growth_percent = inflation_percent = discount_rate = 0
 
 if mode in ["Basic (With Rent)", "Advanced"]:
-        st.subheader("💵 Rental Income")
-        col6, col7 = st.columns(2)
-        with col6:
-            current_rent = st.number_input("Monthly Rent ($)", 0, 20000, current_rent or 2200)
-        with col7:
-            tax_annual = st.number_input("Annual Property Tax ($)", 0, 20000, 3500)
-            insurance_annual = st.number_input("Annual Insurance ($)", 0, 10000, 1200)
+    st.subheader("💵 Rental Income")
+    col6, col7 = st.columns(2)
+    with col6:
+        current_rent = st.number_input("Monthly Rent ($)", 0, 20000, 2200)
+    with col7:
+        tax_annual = st.number_input("Annual Property Tax ($)", 0, 20000, 3500)
+        insurance_annual = st.number_input("Annual Insurance ($)", 0, 10000, 1200)
 
-        # Optional rent comparison check
-        zip_rent_map = {
-            "58104": 1300,
-            "58103": 800,
-            "58102": 995,
-            "58047": 2300,
-            "58105": 1100,
-            "58109": 950,
-            "58125": 1000,
-            "58122": 950,
-            "58124": 900,
-            "58123": 900,
-        }
+    optional_zip = st.text_input("Optional: Enter ZIP Code for Rent Comparison")
+    zip_rent_map = {
+        "58104": 1300, "58103": 800, "58102": 995, "58047": 2300,
+        "58105": 1100, "58109": 950, "58125": 1000, "58122": 950,
+        "58124": 900, "58123": 900,
+    }
+    avg_rent = zip_rent_map.get(optional_zip.strip(), None)
+    if optional_zip and avg_rent:
+        st.subheader("🏨 Rent Quality Check")
+        diff = current_rent - avg_rent
+        if abs(diff) <= 0.1 * avg_rent:
+            st.success(f"✅ Rent of ${current_rent:,.0f} is close to average (${avg_rent:,.0f}) for ZIP {optional_zip}.")
+        elif current_rent > avg_rent:
+            st.warning(f"⚠️ Rent of ${current_rent:,.0f} is above average (${avg_rent:,.0f}) for ZIP {optional_zip}.")
+        else:
+            st.error(f"🔻 Rent of ${current_rent:,.0f} is below average (${avg_rent:,.0f}) for ZIP {optional_zip}.")
 
-        optional_zip = st.text_input("Optional: Enter ZIP Code for Rent Comparison")
-        avg_rent = zip_rent_map.get(optional_zip.strip(), None)
-        if optional_zip and avg_rent:
-            st.subheader("🏘️ Rent Quality Check")
-            diff = current_rent - avg_rent
-            if abs(diff) <= 0.1 * avg_rent:
-                st.markdown(f"""
-                    <div style='color:#0c4128;background:#d1e7dd;padding:10px;border-radius:5px;'>
-                        ✅ Rent of ${current_rent:,.0f} is close to the average for ZIP {optional_zip}.<br>
-                        Average rent: ${avg_rent:,.0f}
-                    </div>
-                """, unsafe_allow_html=True)
-            elif current_rent > avg_rent:
-                st.markdown(f"""
-                    <div style='color:#664d03;background:#fff3cd;padding:10px;border-radius:5px;'>
-                        ⚠️ Rent of ${current_rent:,.0f} is above average for ZIP {optional_zip}.<br>
-                        Average rent: ${avg_rent:,.0f}
-                    </div>
-                """, unsafe_allow_html=True)
-            else:
-                st.markdown(f"""
-                    <div style='color:#842029;background:#f8d7da;padding:10px;border-radius:5px;'>
-                        🔻 Rent of ${current_rent:,.0f} is below average for ZIP {optional_zip}.<br>
-                        Average rent: ${avg_rent:,.0f}
-                    </div>
-                """, unsafe_allow_html=True)
 if mode == "Advanced":
     st.subheader("⚙️ Advanced Settings")
     col8, col9, col10 = st.columns(3)
@@ -223,155 +179,96 @@ if mode == "Advanced":
     with col15:
         inflation_percent = st.number_input("Inflation Rate (% per year)", 0.0, 10.0, 2.0)
 
-# --- CALCULATIONS ---
+# --- CALCULATE & OUTPUT ---
 loan_amount = purchase_price - down_payment
-results = calculate_cashflows(
-    purchase_price, down_payment, loan_amount, loan_term_years, interest_rate,
-    monthly_expenses, current_rent, vacancy_rate, mgmt_fee_percent, maintenance_percent,
-    tax_annual, insurance_annual, hoa_monthly, rent_growth_percent, inflation_percent,
-    years=years
-)
-cash_flows = results["cash_flows"]
-rents = results["rents"]
-schedule = results["schedule"]
-st.write("Down Payment:", down_payment)
-irr = calculate_irr(cash_flows, down_payment)
-npv = calculate_npv(cash_flows, down_payment, discount_rate)
+if st.button("🔍 Calculate"):
+    results = calculate_cashflows(
+        purchase_price, down_payment, loan_amount, loan_term_years, interest_rate,
+        monthly_expenses, current_rent, vacancy_rate, mgmt_fee_percent, maintenance_percent,
+        tax_annual, insurance_annual, hoa_monthly, rent_growth_percent, inflation_percent,
+    )
+    cash_flows = results["cash_flows"]
+    rents = results["rents"]
+    schedule = results["schedule"]
 
-if mode in ["Basic (With Rent)", "Advanced"]:
-            with st.expander("📈 Break-Even Calculator"):
-                cumulative_cash_flow = np.cumsum(cash_flows)
-                break_even_month = next((i for i, total in enumerate(cumulative_cash_flow, start=1) if total >= down_payment), None)
+    st.subheader("📊 Monthly Cash Flow")
+    st.plotly_chart(plot_line_chart(list(range(1, len(cash_flows)+1)), cash_flows, "Monthly Cash Flow", "Cash Flow ($)", "#1f77b4"), use_container_width=True)
 
-                if break_even_month:
-                    years_to_break_even = break_even_month / 12
-                    st.success(f"Break-even in {years_to_break_even:.1f} years (Month {break_even_month})")
-                    st.plotly_chart(
-                        plot_line_chart(
-                            list(range(1, len(cumulative_cash_flow)+1)),
-                            cumulative_cash_flow,
-                            "Cumulative Cash Flow",
-                            "Cumulative $",
-                            "#ff7f0e"
-                        ),
-                        use_container_width=True
-                    )
-                else:
-                    st.warning("This investment does not break even within the selected projection period.")
+    st.subheader("📉 Rent Projection")
+    st.plotly_chart(plot_line_chart(list(range(1, len(rents)+1)), rents, "Projected Rent Income", "Rent ($)", "#2ca02c"), use_container_width=True)
 
-                    # Estimate minimum rent to break even
-                    estimated_rent_needed = current_rent
-                    for rent_test in range(int(current_rent), int(current_rent * 2)):
-                        test_results = calculate_cashflows(
-                            purchase_price, down_payment, loan_amount, loan_term_years, interest_rate,
-                            monthly_expenses, rent_test, vacancy_rate, mgmt_fee_percent, maintenance_percent,
-                            tax_annual, insurance_annual, hoa_monthly, rent_growth_percent, inflation_percent,
-                            years=years
-                        )
-                        cumulative_cf = np.cumsum(test_results["cash_flows"])
-                        if len(cumulative_cf) > 0 and cumulative_cf[-1] >= down_payment:
-                            estimated_rent_needed = rent_test
-                            break
-
-                    st.info(f"💡 Estimated rent needed to break even in {years} years: **${estimated_rent_needed:,.0f}/month**")
+    if mode in ["Basic (With Rent)", "Advanced"] and len(cash_flows) >= 12:
+        st.subheader("🗕️ Year-by-Year Financial Table")
+        monthly_cf = np.array(cash_flows)
+        rent_array = np.array(rents)
+        years_list = list(range(1, int(len(cash_flows)/12) + 1))
+        df_yearly = pd.DataFrame({
+            "Year": years_list,
+            "Total Rent": [rent_array[i*12:(i+1)*12].sum() for i in range(len(years_list))],
+            "Cash Flow": [monthly_cf[i*12:(i+1)*12].sum() for i in range(len(years_list))]
+        })
+        st.dataframe(df_yearly, use_container_width=True)
 
 
 
-if not schedule.empty:
-    st.subheader("📋 Mortgage Schedule")
-    st.dataframe(schedule)
-    csv = convert_df_to_csv(schedule)
-    st.download_button("Download Schedule as CSV", csv, "amortization_schedule.csv", "text/csv")
+    with st.expander("📖 Legend: Key Terms Explained", expanded=False):
+        st.markdown("""
+    Appraisal - A professional estimate of a properties market value.
 
- 
-def calculate_irr(cash_flows, down_payment):
-    try:
-        irr = npf.irr([-down_payment] + list(cash_flows))
-        if irr is None or np.isnan(irr):
-            return None
-        return irr * 100
-    except:
-        return None
+    Cap Rate (Capitalization Rate) -  The annual Net Operating Income divided by the purchase price, showing the property's yield ignoring financing.
 
-def calculate_npv(cash_flows, down_payment, discount_rate):
-    try:
-        return npf.npv(discount_rate / 100 / 12, [-down_payment] + list(cash_flows))
-    except:
-        return None
+    Cash Flow -	Money left over each month after all expenses and debt payments.
 
-def plot_line_chart(x, y, title, yaxis_title, color):
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=x, y=y, mode='lines', line=dict(color=color, width=3)))
-    fig.update_layout(title=title, xaxis_title='Months', yaxis_title=yaxis_title, template='plotly_white')
-    return fig
+    Cash on Cash Return -	Annual cash flow divided by your actual cash invested (down payment), showing your cash yield.
 
-def plot_area_chart(x, y, title, yaxis_title, color):
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=x, y=y, mode='lines', fill='tozeroy', line=dict(color=color, width=3)))
-    fig.update_layout(title=title, xaxis_title='Months', yaxis_title=yaxis_title, template='plotly_white')
-    return fig
+    Closing Costs -	Fees paid at the final step of a real estate transaction (e.g., title, lender fees, taxes).
 
-def convert_df_to_csv(df):
-    return df.to_csv(index=False).encode('utf-8')
+    Comps (Comparables) - Recently sold similar properties used to determine a property's value.
 
-with st.expander("📖 Legend: Key Terms Explained", expanded=False):
-    st.markdown("""
-Appraisal - A professional estimate of a properties market value.
+    Depreciation - A tax deduction that spreads out the cost of a property over its useful life.
 
-Cap Rate (Capitalization Rate) -  The annual Net Operating Income divided by the purchase price, showing the property's yield ignoring financing.
+    Equity - The portion of the property you truly own: Market Value - Loan Balance.
 
-Cash Flow -	Money left over each month after all expenses and debt payments.
+    Escrow - A neutral third-party account holding funds/documents during a transaction.
 
-Cash on Cash Return -	Annual cash flow divided by your actual cash invested (down payment), showing your cash yield.
+    Gross Rent Multiplier (GRM)	- Ratio of property price to gross annual rent; used for quick valuation.
 
-Closing Costs -	Fees paid at the final step of a real estate transaction (e.g., title, lender fees, taxes).
+    Hard Money Loan	Short-term - high-interest loan secured by real estate, often used by flippers.
 
-Comps (Comparables) - Recently sold similar properties used to determine a property's value.
+    HOA (Homeowners Association) -	Organization managing a community and collecting fees for upkeep.
 
-Depreciation - A tax deduction that spreads out the cost of a property over its useful life.
+    Inflation Rate - Annual increase in expenses and costs.
 
-Equity - The portion of the property you truly own: Market Value - Loan Balance.
+    Internal Rate of Return (IRR) - The annualized return earned on an investment over time, accounting for timing of cash flows.
 
-Escrow - A neutral third-party account holding funds/documents during a transaction.
+    Leverage - Using borrowed money to increase the potential return of an investment.
 
-Gross Rent Multiplier (GRM)	- Ratio of property price to gross annual rent; used for quick valuation.
+    Loan-to-Value (LTV)	- Ratio of loan amount to property value. High LTV means more risk for lenders.
 
-Hard Money Loan	Short-term - high-interest loan secured by real estate, often used by flippers.
+    Maintenance - Percentage of rent set aside for upkeep and repairs.
 
-HOA (Homeowners Association) -	Organization managing a community and collecting fees for upkeep.
+    Management Fee - Percentage of rent paid to a property manager.
 
-Inflation Rate - Annual increase in expenses and costs.
+    Net Operating Income (NOI) - Income from rent minus operating expenses (taxes, insurance, maintenance), excluding mortgage costs.
 
-Internal Rate of Return (IRR) - The annualized return earned on an investment over time, accounting for timing of cash flows.
+    Net Present Value (NPV) - The total value today of future cash flows minus the initial investment, used to evaluate profitability.
 
-Leverage - Using borrowed money to increase the potential return of an investment.
+    Operating Expenses - Costs to run the property (e.g., insurance, taxes, maintenance, management).
 
-Loan-to-Value (LTV)	- Ratio of loan amount to property value. High LTV means more risk for lenders.
+    Payback Period - Time it takes to recoup your initial investment (down payment) from cash flows.
 
-Maintenance - Percentage of rent set aside for upkeep and repairs.
+    Principal - The base amount of your loan, not including interest.
 
-Management Fee - Percentage of rent paid to a property manager.
+    Private Mortgage Insurance (PMI) - Insurance added to monthly payments when your down payment is <20%.
 
-Net Operating Income (NOI) - Income from rent minus operating expenses (taxes, insurance, maintenance), excluding mortgage costs.
+    Rehab - Renovating a property to improve value or condition.
 
-Net Present Value (NPV) - The total value today of future cash flows minus the initial investment, used to evaluate profitability.
+    Rent Growth Rate - Expected annual increase in rent charged.
 
-Operating Expenses - Costs to run the property (e.g., insurance, taxes, maintenance, management).
+    ROI (Return on Investment) - Percentage gain or loss on your investment over time, including cash flow and equity gains.
 
-Payback Period - Time it takes to recoup your initial investment (down payment) from cash flows.
+    Title - Legal documentation showing who owns a property.
 
-Principal - The base amount of your loan, not including interest.
+    Vacancy Rate - Percentage of time the property is expected to be unoccupied.
 
-Private Mortgage Insurance (PMI) - Insurance added to monthly payments when your down payment is <20%.
-
-Rehab - Renovating a property to improve value or condition.
-
-Rent Growth Rate - Expected annual increase in rent charged.
-
-ROI (Return on Investment) - Percentage gain or loss on your investment over time, including cash flow and equity gains.
-
-Title - Legal documentation showing who owns a property.
-
-Vacancy Rate - Percentage of time the property is expected to be unoccupied.
-
-    """)
+        """)
