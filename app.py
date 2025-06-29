@@ -181,33 +181,81 @@ if mode == "Advanced":
 
 # --- CALCULATE & OUTPUT ---
 loan_amount = purchase_price - down_payment
-if st.button("🔍 Calculate"):
+
+
+
+if mode == "Basic (Non-Rental)":
+    st.subheader("📘 Mortgage & Homebuyer Summary")
+
+    # Calculate loan amount and monthly payments
+    loan_amount = purchase_price - down_payment
+    tax_annual = st.number_input("Annual Property Tax ($)", 0, 20000, 3000)
+    monthly_property_tax = tax_annual / 12
+    monthly_mortgage = mortgage_payment_calc(loan_amount, interest_rate, loan_term_years)
+    total_monthly_payment = monthly_mortgage + monthly_property_tax
+
+    # Optional: Gross monthly income for affordability check
+    gross_income = st.number_input("Your Gross Monthly Income ($)", 0, 50000, 8000)
+    housing_ratio = (total_monthly_payment / gross_income * 100) if gross_income else 0
+
+    st.markdown("### 💰 Monthly Payment Breakdown")
+    st.write(f"**🏦 Mortgage Payment:** ${monthly_mortgage:,.2f}")
+    st.write(f"**🏛️ Property Tax:** ${monthly_property_tax:,.2f}")
+    st.success(f"**💰 Total Monthly Payment:** ${total_monthly_payment:,.2f}")
+
+    st.markdown("### 🧾 Loan Summary")
+    st.write(f"**Purchase Price:** ${purchase_price:,.0f}")
+    st.write(f"**Down Payment ({down_payment_percent:.1f}%):** ${down_payment:,.0f}")
+    st.write(f"**Loan Amount:** ${loan_amount:,.0f}")
+    st.write(f"**Interest Rate:** {interest_rate:.2f}%")
+    st.write(f"**Loan Term:** {loan_term_years} years")
+
+    st.markdown("### 💼 Upfront Cost Estimate")
+    closing_cost_percent = st.slider("Estimated Closing Costs (% of Purchase Price)", 1.0, 5.0, 3.0)
+    closing_costs = purchase_price * (closing_cost_percent / 100)
+    total_upfront = down_payment + closing_costs
+    st.write(f"**Estimated Closing Costs:** ${closing_costs:,.0f}")
+    st.success(f"**Total Cash Needed at Purchase:** ${total_upfront:,.0f}")
+
+    if gross_income:
+        st.markdown("### 🧮 Affordability Check")
+        st.write(f"**Housing Cost Ratio:** {housing_ratio:.1f}% of income")
+        if housing_ratio < 30:
+            st.success("✅ Within typical affordability range (under 30%).")
+        elif housing_ratio < 40:
+            st.warning("⚠️ Borderline affordability (30–40%).")
+        else:
+            st.error("❌ Monthly payment may be unaffordable (above 40%).")
+projection_years = st.slider("Projection Duration (Years)", 1, 30, 5)
+if st.button("🔍 Calculate") and mode in ["Basic (With Rent)", "Advanced"]:
     results = calculate_cashflows(
-        purchase_price, down_payment, loan_amount, loan_term_years, interest_rate,
-        monthly_expenses, current_rent, vacancy_rate, mgmt_fee_percent, maintenance_percent,
-        tax_annual, insurance_annual, hoa_monthly, rent_growth_percent, inflation_percent,
+    purchase_price, down_payment, loan_amount, loan_term_years, interest_rate,
+    monthly_expenses, current_rent, vacancy_rate, mgmt_fee_percent, maintenance_percent,
+    tax_annual, insurance_annual, hoa_monthly, rent_growth_percent, inflation_percent,
+        years=projection_years
     )
     cash_flows = results["cash_flows"]
     rents = results["rents"]
     schedule = results["schedule"]
-
+    
     st.subheader("📊 Monthly Cash Flow")
     st.plotly_chart(plot_line_chart(list(range(1, len(cash_flows)+1)), cash_flows, "Monthly Cash Flow", "Cash Flow ($)", "#1f77b4"), use_container_width=True)
-
+    
     st.subheader("📉 Rent Projection")
     st.plotly_chart(plot_line_chart(list(range(1, len(rents)+1)), rents, "Projected Rent Income", "Rent ($)", "#2ca02c"), use_container_width=True)
-
+    
     if mode in ["Basic (With Rent)", "Advanced"] and len(cash_flows) >= 12:
-        st.subheader("🗕️ Year-by-Year Financial Table")
-        monthly_cf = np.array(cash_flows)
-        rent_array = np.array(rents)
-        years_list = list(range(1, int(len(cash_flows)/12) + 1))
-        df_yearly = pd.DataFrame({
-            "Year": years_list,
-            "Total Rent": [rent_array[i*12:(i+1)*12].sum() for i in range(len(years_list))],
-            "Cash Flow": [monthly_cf[i*12:(i+1)*12].sum() for i in range(len(years_list))]
-        })
-        st.dataframe(df_yearly, use_container_width=True)
+     st.subheader("🗕️ Year-by-Year Financial Table")
+     monthly_cf = np.array(cash_flows)
+     rent_array = np.array(rents)
+     years_list = list(range(1, int(len(cash_flows)/12) + 1))
+     df_yearly = pd.DataFrame({
+     "Year": years_list,
+     "Total Rent": [rent_array[i*12:(i+1)*12].sum() for i in range(len(years_list))],
+     "Cash Flow": [monthly_cf[i*12:(i+1)*12].sum() for i in range(len(years_list))]
+     })
+    st.dataframe(df_yearly, use_container_width=True)
+    
 
 
 
