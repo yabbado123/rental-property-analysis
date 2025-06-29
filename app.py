@@ -256,10 +256,7 @@ if st.button("🔍 Calculate") and mode in ["Basic (With Rent)", "Advanced"]:
      })
     st.dataframe(df_yearly, use_container_width=True)
     
-
-
-
-    with st.expander("📖 Legend: Key Terms Explained", expanded=False):
+with st.expander("📖 Legend: Key Terms Explained", expanded=False):
         st.markdown("""
     Appraisal - A professional estimate of a properties market value.
 
