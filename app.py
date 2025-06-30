@@ -232,6 +232,138 @@ if mode == "Basic (Non-Rental)":
     st.write(f"**Loan Term:** {loan_term_years} years")
 
 projection_years = st.slider("Projection Duration (Years)", 1, 30, 5)
+
+st.markdown("### 📈 Mortgage Amortization Chart")
+
+st.markdown("### 📊 Mortgage Payment Overview")
+
+    # Add toggle for chart vs table
+view_mode = st.radio("Select View", ["📈 Chart", "📋 Table"], horizontal=True)
+
+    # Raw amortization schedule (formatted with $) — already exists
+schedule_formatted = amortization_schedule(loan_amount, interest_rate, loan_term_years)
+
+    # Cleaned version (for plotting or numeric table)
+schedule_clean = pd.DataFrame([
+        {
+            "Month": row["Month"],
+            "Payment": float(row["Payment"].replace('$','').replace(',','')),
+            "Principal": float(row["Principal"].replace('$','').replace(',','')),
+            "Interest": float(row["Interest"].replace('$','').replace(',','')),
+            "Balance": float(row["Balance"].replace('$','').replace(',',''))
+        }
+        for _, row in schedule_formatted.iterrows()
+    ])
+
+if view_mode == "📈 Chart":
+        # Plotly stacked bar + line chart
+    fig = go.Figure()
+    fig.add_trace(go.Bar(
+            x=schedule_clean["Month"],
+            y=schedule_clean["Principal"],
+            name="Principal",
+            marker_color="green"
+        ))
+    fig.add_trace(go.Bar(
+            x=schedule_clean["Month"],
+            y=schedule_clean["Interest"],
+            name="Interest",
+            marker_color="red"
+        ))
+    fig.add_trace(go.Scatter(
+            x=schedule_clean["Month"],
+            y=schedule_clean["Balance"],
+            name="Remaining Balance",
+            line=dict(color="blue", width=3),
+            yaxis="y2"
+        ))
+
+    fig.update_layout(
+            title="Mortgage Payment Breakdown Over Time",
+            xaxis_title="Month",
+            yaxis=dict(title="Monthly Payment"),
+            yaxis2=dict(
+                title="Remaining Balance",
+                overlaying="y",
+                side="right",
+                showgrid=False
+            ),
+            barmode="stack",
+            legend=dict(x=0.01, y=0.99),
+            template="plotly_white"
+        )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+else:
+        st.dataframe(schedule_formatted, use_container_width=True)
+        st.download_button(
+            "📥 Download Amortization Schedule (CSV)",
+            data=convert_df_to_csv(schedule_formatted),
+            file_name="amortization_schedule.csv",
+            mime="text/csv"
+        )
+
+
+    # Get raw (non-formatted) amortization DataFrame
+schedule_raw = amortization_schedule(
+        loan_amount, interest_rate, loan_term_years
+    )
+    # Convert dollar strings back to float for plotting
+df_amort = pd.DataFrame([
+        {
+            "Month": row["Month"],
+            "Payment": float(row["Payment"].replace('$','').replace(',','')),
+            "Principal": float(row["Principal"].replace('$','').replace(',','')),
+            "Interest": float(row["Interest"].replace('$','').replace(',','')),
+            "Balance": float(row["Balance"].replace('$','').replace(',',''))
+        }
+        for _, row in schedule_raw.iterrows()
+    ])
+
+    # Plotly stacked bar and line chart
+fig = go.Figure()
+fig.add_trace(go.Bar(
+        x=df_amort["Month"],
+        y=df_amort["Principal"],
+        name="Principal",
+        marker_color="green"
+    ))
+fig.add_trace(go.Bar(
+        x=df_amort["Month"],
+        y=df_amort["Interest"],
+        name="Interest",
+        marker_color="red"
+    ))
+fig.add_trace(go.Scatter(
+        x=df_amort["Month"],
+        y=df_amort["Balance"],
+        name="Remaining Balance",
+        line=dict(color="blue", width=3),
+        yaxis="y2"
+    ))
+
+    # Layout adjustments
+fig.update_layout(
+        title="Mortgage Payment Breakdown Over Time",
+        xaxis_title="Month",
+        yaxis=dict(title="Monthly Payment", side="left"),
+        yaxis2=dict(
+            title="Remaining Balance",
+            overlaying="y",
+            side="right",
+            showgrid=False
+        ),
+        barmode="stack",
+        legend=dict(x=0.01, y=0.99),
+        template="plotly_white"
+    )
+
+st.plotly_chart(fig, use_container_width=True)
+
+
+
+
 if st.button("🔍 Calculate") and mode in ["Basic (With Rent)", "Advanced"]:
     results = calculate_cashflows(
     purchase_price, down_payment, loan_amount, loan_term_years, interest_rate,
