@@ -185,6 +185,17 @@ loan_amount = purchase_price - down_payment
 
 
 if mode == "Basic (Non-Rental)":
+
+    
+
+    st.markdown("### 💼 Upfront Cost Estimate")
+    closing_cost_percent = st.slider("Estimated Closing Costs (% of Purchase Price)", 1.0, 5.0, 3.0)
+    closing_costs = purchase_price * (closing_cost_percent / 100)
+    total_upfront = down_payment + closing_costs
+    st.write(f"**Estimated Closing Costs:** ${closing_costs:,.0f}")
+    st.success(f"**Total Cash Needed at Purchase:** ${total_upfront:,.0f}")
+
+
     st.subheader("📘 Mortgage & Homebuyer Summary")
 
     # Calculate loan amount and monthly payments
@@ -198,6 +209,16 @@ if mode == "Basic (Non-Rental)":
     gross_income = st.number_input("Your Gross Monthly Income ($)", 0, 50000, 8000)
     housing_ratio = (total_monthly_payment / gross_income * 100) if gross_income else 0
 
+    if gross_income:
+        st.markdown("### 🧮 Affordability Check")
+        st.write(f"**Housing Cost Ratio:** {housing_ratio:.1f}% of income")
+        if housing_ratio < 30:
+            st.success("✅ Within typical affordability range (under 30%).")
+        elif housing_ratio < 40:
+            st.warning("⚠️ Borderline affordability (30–40%).")
+        else:
+            st.error("❌ Monthly payment may be unaffordable (above 40%).")
+
     st.markdown("### 💰 Monthly Payment Breakdown")
     st.write(f"**🏦 Mortgage Payment:** ${monthly_mortgage:,.2f}")
     st.write(f"**🏛️ Property Tax:** ${monthly_property_tax:,.2f}")
@@ -210,22 +231,6 @@ if mode == "Basic (Non-Rental)":
     st.write(f"**Interest Rate:** {interest_rate:.2f}%")
     st.write(f"**Loan Term:** {loan_term_years} years")
 
-    st.markdown("### 💼 Upfront Cost Estimate")
-    closing_cost_percent = st.slider("Estimated Closing Costs (% of Purchase Price)", 1.0, 5.0, 3.0)
-    closing_costs = purchase_price * (closing_cost_percent / 100)
-    total_upfront = down_payment + closing_costs
-    st.write(f"**Estimated Closing Costs:** ${closing_costs:,.0f}")
-    st.success(f"**Total Cash Needed at Purchase:** ${total_upfront:,.0f}")
-
-    if gross_income:
-        st.markdown("### 🧮 Affordability Check")
-        st.write(f"**Housing Cost Ratio:** {housing_ratio:.1f}% of income")
-        if housing_ratio < 30:
-            st.success("✅ Within typical affordability range (under 30%).")
-        elif housing_ratio < 40:
-            st.warning("⚠️ Borderline affordability (30–40%).")
-        else:
-            st.error("❌ Monthly payment may be unaffordable (above 40%).")
 projection_years = st.slider("Projection Duration (Years)", 1, 30, 5)
 if st.button("🔍 Calculate") and mode in ["Basic (With Rent)", "Advanced"]:
     results = calculate_cashflows(
