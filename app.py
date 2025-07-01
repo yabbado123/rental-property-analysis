@@ -11,6 +11,28 @@ st.set_page_config(page_title="🏨 Rental Analyzer", layout="centered", initial
 st.title("🏠 Rental Property Investment Analyzer")
 st.caption("Created by Jacob Klingman")
 
+# --- Competitor Comparison Chart ---
+with st.expander("💼 Competitor Comparison", expanded=False):
+    st.markdown("### 🧪 How This App Compares to the Competition")
+
+    comparison_data = {
+        "Feature": [
+            "Live analysis", 
+            "Charts (Cash Flow, Rent, Equity)", 
+            "FHA / DTI checks", 
+            "Beginner-friendly", 
+            "Customizable"
+        ],
+        "This app": ["✅ Yes", "✅ Yes", "✅ Yes", "✅ Very", "✅ Fully"],
+        "DealCheck": ["✅ Fast", "⚠️ Limited", "❌", "✅", "✅"],
+        "BiggerPockets": ["⚠️ Requires login", "❌ None", "❌", "⚠️ More complex", "⚠️ Limited"],
+        "Stessa": ["❌ Post-purchase only", "✅ After purchase", "❌", "⚠️ Focused on owners", "⚠️ Based on real data"],
+    }
+
+    df_comparison = pd.DataFrame(comparison_data)
+    st.dataframe(df_comparison, use_container_width=True)
+
+
 # --- STYLES ---
 st.markdown("""
 <style>
@@ -389,17 +411,23 @@ if mode in ["Basic (With Rent)", "Advanced"] and st.session_state.get("Calculate
         st.markdown(info_label(term, tip), unsafe_allow_html=True)
 
 
+
+
+
+
 # --- Break-Even Calculator ---
-        st.markdown("### 🔄 Break-Even Point")
 
-        cumulative_cf = np.cumsum(cash_flows)
-        breakeven_month = next((i+1 for i, val in enumerate(cumulative_cf) if val >= down_payment), None)
+if 'cash_flows' in locals():
+    st.markdown("### 🔄 Break-Even Point")
 
-        if breakeven_month:
-            breakeven_years = breakeven_month / 12
-            st.success(f"💸 Break-even reached in {breakeven_month} months ({breakeven_years:.1f} years)")
-        else:
-            st.warning("⚠️ Property does not break even within the selected projection period.")
+    cumulative_cf = np.cumsum(cash_flows)
+    breakeven_month = next((i+1 for i, val in enumerate(cumulative_cf) if val >= down_payment), None)
+
+    if breakeven_month:
+        breakeven_years = breakeven_month / 12
+        st.success(f"💸 Break-even reached in {breakeven_month} months ({breakeven_years:.1f} years)")
+    else:
+        st.warning("⚠️ Property does not break even within the selected projection period.")
 
 # --- Equity Growth Projection ---
         st.markdown("### 📈 Equity Growth Over Time")
