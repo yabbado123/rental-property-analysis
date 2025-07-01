@@ -6,9 +6,13 @@ import plotly.graph_objs as go
 import numpy_financial as npf
 import re
 
+def format_currency_columns(df, currency_cols):
+    return df.style.format({col: "${:,.0f}" for col in currency_cols})
+
+
 # --- PAGE CONFIGURATION ---
 st.set_page_config(page_title="🏨 Rental Analyzer", layout="centered", initial_sidebar_state="collapsed")
-st.title("🏠 Rental Property Investment Analyzer")
+st.title("🏠 Property Investment Analyzer")
 st.caption("Created by Jacob Klingman")
 
 # --- Competitor Comparison Chart ---
@@ -131,6 +135,63 @@ def plot_line_chart(x, y, title, yaxis_title, color):
     fig.update_layout(title=title, xaxis_title='Months', yaxis_title=yaxis_title, template='plotly_white')
     return fig
 
+
+
+
+
+
+
+if st.toggle("📊 Show Property Comparison Tool", value=False):
+    # --- PROPERTY COMPARISON TOOL ---
+    st.markdown("## 🏘️ Compare Multiple Properties")
+
+    num_properties = st.radio("How many properties would you like to compare?", [2, 3], horizontal=True)
+    cols = st.columns(num_properties)
+
+    property_inputs = []
+
+    for i in range(num_properties):
+        with cols[i]:
+            st.markdown(f"### 📋 Property {chr(65+i)}")
+
+            purchase_price = st.number_input(f"Purchase Price – Property {chr(65+i)}", min_value=50000, value=300000, step=5000, key=f"pp_{i}")
+            down_payment_percent = st.number_input(f"Down Payment (%) – Property {chr(65+i)}", min_value=0.0, max_value=100.0, value=20.0, key=f"dp_{i}")
+            interest_rate = st.number_input(f"Interest Rate (%) – Property {chr(65+i)}", min_value=0.0, max_value=15.0, value=6.5, key=f"ir_{i}")
+            rent = st.number_input(f"Monthly Rent – Property {chr(65+i)}", min_value=0, value=2200, step=50, key=f"rent_{i}")
+            expenses = st.number_input(f"Monthly Expenses – Property {chr(65+i)}", min_value=0, value=300, step=25, key=f"exp_{i}")
+            loan_term_years = st.selectbox(f"Loan Term – Property {chr(65+i)}", [15, 20, 30], index=2, key=f"term_{i}")
+
+            property_inputs.append({
+                "label": f"Property {chr(65+i)}",
+                "purchase_price": purchase_price,
+                "down_payment_percent": down_payment_percent,
+                "interest_rate": interest_rate,
+                "rent": rent,
+                "expenses": expenses,
+                "loan_term_years": loan_term_years
+            })
+
+    if st.button("📊 Compare Properties"):
+        comparison_data = {
+            "Metric": ["Purchase Price", "Down Payment", "Monthly Rent", "Monthly Expenses"]
+        }
+
+        for prop in property_inputs:
+            dp = prop["purchase_price"] * prop["down_payment_percent"] / 100
+            comparison_data[prop["label"]] = [
+                f"${prop['purchase_price']:,}",
+                f"${dp:,.0f}",
+                f"${prop['rent']:,.0f}",
+                f"${prop['expenses']:,.0f}",
+            ]
+
+        df_compare = pd.DataFrame(comparison_data)
+        st.markdown("### 📈 Property Comparison Table")
+        st.dataframe(df_compare, use_container_width=True)
+
+
+
+    
 
 # --- MODE SELECTION ---
 mode = st.radio("Calculation Mode", ["Basic (Non-Rental)", "Basic (With Rent)", "Advanced"], horizontal=True)
@@ -255,7 +316,228 @@ if st.button("🔍 Calculate"):
                 "Total Rent": [rent_array[i*12:(i+1)*12].sum() for i in range(len(years_list))],
                 "Cash Flow": [monthly_cf[i*12:(i+1)*12].sum() for i in range(len(years_list))]
             })
-            st.dataframe(df_yearly, use_container_width=True)
+            st.dataframe(format_currency_columns(df_yearly, ["Total Rent", "Cash Flow"]), use_container_width=True)
+
+
+            csv_yearly = df_yearly.to_csv(index=False).encode('utf-8')
+            st.markdown("💾 *Export includes all key details for offline analysis or spreadsheet use.*")
+            st.download_button("⬇️ Download Yearly Summary CSV", data=csv_yearly, file_name="yearly_summary.csv", mime="text/csv")  
+             
+
+            # --- Multi-Year ROI Scenario Table ---
+        st.markdown("### 📘 Multi-Year ROI Scenario Table")
+
+        appreciation_rate = st.number_input(
+            "Expected Property Appreciation Rate (% per year)",
+            0.0, 15.0, 3.0,
+            help="Used to estimate equity gains over time."
+        )
+
+        equity_list = []
+        for i in range(len(schedule["Balance"])):
+            year_fraction = i / 12
+            est_home_value = purchase_price * ((1 + appreciation_rate / 100) ** year_fraction)
+            equity = est_home_value - schedule["Balance"][i]
+            equity_list.append(equity)
+
+        years = list(range(1, projection_years + 1))
+        monthly_cf_array = np.array(cash_flows)
+        monthly_rent_array = np.array(rents)
+        monthly_mortgage_payment = mortgage_payment_calc(loan_amount, interest_rate, loan_term_years)
+
+        roi_data = {
+            "Year": years,
+            "Total Rent": [monthly_rent_array[i*12:(i+1)*12].sum() for i in range(projection_years)],
+            "Expenses + Mortgage": [monthly_mortgage_payment * 12 + monthly_expenses * 12 for _ in years],
+            "Net Cash Flow": [monthly_cf_array[i*12:(i+1)*12].sum() for i in range(projection_years)],
+            "Cumulative CF": [monthly_cf_array[:(i+1)*12].sum() for i in range(projection_years)],
+            "Estimated Equity": [
+                equity_list[(i+1)*12 - 1] if (i+1)*12 - 1 < len(equity_list) else equity_list[-1]
+                for i in range(projection_years)
+            ],
+            "ROI %": [
+                round(
+                    ((monthly_cf_array[:(i+1)*12].sum() + equity_list[min((i+1)*12 - 1, len(equity_list)-1)])
+                     / down_payment) * 100, 2
+                ) for i in range(projection_years)
+            ]
+        }
+
+        df_roi = pd.DataFrame(roi_data)
+        st.dataframe(
+        df_roi.style
+        .format({
+        "Total Rent": "${:,.0f}",
+        "Expenses + Mortgage": "${:,.0f}",
+        "Net Cash Flow": "${:,.0f}",
+        "Cumulative CF": "${:,.0f}",
+        "Estimated Equity": "${:,.0f}",
+        "ROI %": "{:.2f}%"
+        }),
+        use_container_width=True
+        )
+
+        csv_roi = df_roi.to_csv(index=False).encode('utf-8')
+        st.markdown("💾 *Export includes all key details for offline analysis or spreadsheet use.*")
+        st.download_button("⬇️ Download ROI Table (CSV)", data=csv_roi, file_name="multi_year_roi.csv", mime="text/csv")
+
+
+         # --- Rent & Expense Sensitivity Sliders ---
+        with st.expander("🎯 Rent & Expense Sensitivity Analysis"):
+
+            st.markdown("Adjust rent and expenses to simulate different scenarios and see how they affect returns.")
+
+            # Sliders for adjustment
+            rent_adjust = st.slider("Adjust Rent (%)", -20, 20, 0, help="Adjusts monthly rent by percentage.")
+            expense_adjust = st.slider("Adjust Expenses ($/month)", -500, 500, 0, help="Adjusts total expenses.")
+
+            # Recalculate adjusted values
+            adjusted_rent = current_rent * (1 + rent_adjust / 100)
+            adjusted_expenses = monthly_expenses + expense_adjust
+
+            # Adjusted cash flow and metrics
+            adjusted_monthly_cf = adjusted_rent - adjusted_expenses - monthly_mortgage_payment
+            adjusted_year1_cf = adjusted_monthly_cf * 12
+            adjusted_roi = (adjusted_year1_cf / down_payment) * 100 if down_payment else 0
+
+            # Display in comparison table
+            sensitivity_data = {
+                "Metric": [
+                    "Monthly Rent", "Monthly Expenses", "Monthly Cash Flow",
+                    "Year 1 Cash Flow", "Cash-on-Cash ROI (Year 1)"
+                ],
+                "Original": [
+                    f"${current_rent:,.0f}", f"${monthly_expenses:,.0f}", f"${(current_rent - monthly_expenses - monthly_mortgage_payment):,.0f}",
+                    f"${monthly_cf_array[:12].sum():,.0f}", f"{(monthly_cf_array[:12].sum() / down_payment * 100):.1f}%"
+                ],
+                "Adjusted": [
+                    f"${adjusted_rent:,.0f}", f"${adjusted_expenses:,.0f}", f"${adjusted_monthly_cf:,.0f}",
+                    f"${adjusted_year1_cf:,.0f}", f"{adjusted_roi:.1f}%"
+                ]
+            }
+
+            df_sensitivity = pd.DataFrame(sensitivity_data)
+            st.dataframe(df_sensitivity, use_container_width=True)
+
+
+
+
+        
+        # --- Deal Score / Investment Rating ---
+
+        # --- Deal Score / Investment Rating ---
+        st.markdown("### 🏅 Deal Score / Investment Rating")
+
+        # Calculate Cash-on-Cash Return (Year 1)
+        year1_cf = monthly_cf_array[:12].sum()
+        coc_return = (year1_cf / down_payment) * 100 if down_payment else 0
+
+        # ROI from last year in table
+        roi_final = df_roi["ROI %"].iloc[-1] if not df_roi.empty else 0
+
+        # IRR and NPV already calculated
+        irr = calculate_irr(cash_flows, down_payment) or 0
+        npv = calculate_npv(cash_flows, down_payment, discount_rate) or 0
+
+        # Cap Rate = (NOI / Purchase Price)
+        gross_income_year1 = sum(rents[:12])
+        expenses_annual = (monthly_expenses + tax_annual / 12 + insurance_annual / 12 + hoa_monthly) * 12
+        noi = gross_income_year1 - expenses_annual
+        cap_rate = (noi / purchase_price) * 100 if purchase_price else 0
+
+        # Normalize scores
+        def normalize(value, ideal, max_score):
+            return min(value / ideal, 1.0) * max_score
+
+        coc_score = normalize(coc_return, 12, 30)
+        roi_score = normalize(roi_final, 100, 25)
+        irr_score = normalize(irr, 15, 20)
+        npv_score = normalize(npv, down_payment, 15)
+        cap_score = normalize(cap_rate, 6, 10)
+
+        deal_score = round(coc_score + roi_score + irr_score + npv_score + cap_score, 1)
+
+        # Rating
+        if deal_score >= 90:
+            rating = "🔥 Excellent Deal"
+        elif deal_score >= 75:
+            rating = "✅ Strong Deal"
+        elif deal_score >= 60:
+            rating = "⚠️ Moderate Deal"
+        else:
+            rating = "❌ Weak Deal"
+
+        st.metric("🏅 Deal Score", f"{deal_score}/100", delta=rating)
+
+
+        # Calculate Cash-on-Cash Return (Year 1)
+        year1_cf = monthly_cf_array[:12].sum()
+        coc_return = (year1_cf / down_payment) * 100 if down_payment else 0
+
+        # ROI from last year in table
+        roi_final = df_roi["ROI %"].iloc[-1] if not df_roi.empty else 0
+
+        # IRR and NPV already calculated
+        irr = calculate_irr(cash_flows, down_payment) or 0
+        npv = calculate_npv(cash_flows, down_payment, discount_rate) or 0
+
+        # Cap Rate = (NOI / Purchase Price)
+        gross_income_year1 = sum(rents[:12])
+        expenses_annual = (monthly_expenses + tax_annual / 12 + insurance_annual / 12 + hoa_monthly) * 12
+        noi = gross_income_year1 - expenses_annual
+        cap_rate = (noi / purchase_price) * 100 if purchase_price else 0
+
+        # Normalize scores
+        def normalize(value, ideal, max_score):
+            return min(value / ideal, 1.0) * max_score
+
+        coc_score = normalize(coc_return, 12, 30)
+        roi_score = normalize(roi_final, 100, 25)
+        irr_score = normalize(irr, 15, 20)
+        npv_score = normalize(npv, down_payment, 15)
+        cap_score = normalize(cap_rate, 6, 10)
+
+        deal_score = round(coc_score + roi_score + irr_score + npv_score + cap_score, 1)
+
+        # Rating
+        if deal_score >= 90:
+            rating = "🔥 Excellent Deal"
+        elif deal_score >= 75:
+            rating = "✅ Strong Deal"
+        elif deal_score >= 60:
+            rating = "⚠️ Moderate Deal"
+        else:
+            rating = "❌ Weak Deal"
+
+        st.metric("🏅 Deal Score", f"{deal_score}/100", delta=rating)
+
+
+                # Show how the Deal Score was calculated
+        st.markdown("#### 📊 Score Breakdown")
+
+        score_data = {
+            "Metric": [
+                "Cash-on-Cash Return", "ROI %", "IRR", "NPV", "Cap Rate"
+            ],
+            "Value": [
+                f"{coc_return:.1f}%", f"{roi_final:.1f}%", f"{irr:.1f}%", f"${npv:,.0f}", f"{cap_rate:.1f}%"
+            ],
+            "Target": [
+                "12%", "100%", "15%", f"${down_payment:,.0f}", "6%"
+            ],
+            "Weight": [
+                "30%", "25%", "20%", "15%", "10%"
+            ],
+            "Score": [
+                round(coc_score, 1), round(roi_score, 1), round(irr_score, 1),
+                round(npv_score, 1), round(cap_score, 1)
+            ]
+        }
+
+        df_score = pd.DataFrame(score_data)
+        st.dataframe(df_score, use_container_width=True)
+
+
 
         # Quick Summary
         st.markdown("### 📌 Quick Summary")
@@ -311,6 +593,10 @@ if mode == "Basic (Non-Rental)":
         st.markdown("### 📊 Mortgage Payoff Chart")
 
         schedule_df = amortization_schedule(loan_amount, interest_rate, loan_term_years)
+        csv_amort = schedule_df.to_csv(index=False).encode('utf-8')
+        st.markdown("💾 *Export includes all key details for offline analysis or spreadsheet use.*")
+        st.download_button("⬇️ Download Mortgage Payment Chart", data=csv_amort, file_name="amortization_schedule.csv", mime="text/csv")
+
         months = schedule_df["Month"]
         principal = schedule_df["Principal"]
         interest = schedule_df["Interest"]
@@ -447,6 +733,11 @@ if 'cash_flows' in locals():
             plot_line_chart(months, equity_list, "Projected Home Equity Over Time", "Equity ($)", "#ff7f0e"),
             use_container_width=True
         )
+        df_equity = pd.DataFrame({"Month": months, "Estimated Equity": equity_list})
+        csv_equity = df_equity.to_csv(index=False).encode('utf-8')
+        st.markdown("💾 *Export includes all key details for offline analysis or spreadsheet use.*")
+        st.download_button("⬇️ Download Equity Growth CSV", data=csv_equity, file_name="equity_growth.csv", mime="text/csv")
+
 
     
 with st.expander("📖 Legend: Key Terms Explained", expanded=False):
@@ -509,4 +800,4 @@ with st.expander("📖 Legend: Key Terms Explained", expanded=False):
 
     Vacancy Rate - Percentage of time the property is expected to be unoccupied.
 
-        """)
+        """)  
