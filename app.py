@@ -10,6 +10,13 @@ left, center, right = st.columns([2.25, 2, 0.8])
 with center:
     st.image("logo.png", width=160)
 st.set_page_config(page_title="🏡 Smart Rental Analyzer", layout="wide")
+st.markdown("<p style='text-align:center; font-size:14px; color:gray;'>Created by Jacob Klingman</p>", unsafe_allow_html=True)
+
+st.markdown("### 📬 Contact Me")
+st.markdown(""" 
+**📧 Email:** [smart-rental-analyzer@outlook.com](mailto:smart-rental-analyzer@outlook.com)  
+""")
+
 st.markdown("""
 <style>
 #MainMenu, footer, header {visibility: hidden;}
@@ -30,7 +37,6 @@ page = st.selectbox(
         "💎 Property Comparison (Pro)",
         "🧪 Advanced Analytics (Pro)",
         "🏚 Rehab & Refi (Pro)",
-        "📄 Download Reports",
         "📖 Glossary"
     ],
     index=0
@@ -92,87 +98,218 @@ if page == "🏠 Home":
         st.markdown(html, unsafe_allow_html=True)
 
 
-
-
-
-
 elif page == "📊 Quick Deal Analyzer":
     st.header("📊 Quick Deal Analyzer")
+    st.markdown("Evaluate your deal with just a few inputs and see your score on a 0–100 scale.")
+
     col1, col2 = st.columns(2)
     with col1:
-        price = st.number_input("Purchase Price", value=300000)
-        dp_pct = st.slider("Down Payment %", 0, 100, 20)
-        ir = st.number_input("Interest Rate %", value=6.5)
+        purchase_price = st.number_input("Purchase Price ($)", value=250000)
+        monthly_rent = st.number_input("Monthly Rent ($)", value=2200)
     with col2:
-        rent = st.number_input("Monthly Rent", value=2200)
-        exp = st.number_input("Monthly Expenses", value=300)
-        term = st.selectbox("Loan Term (yrs)", [15, 20, 30])
+        monthly_expenses = st.number_input("Monthly Expenses ($)", value=1400)
+        down_payment_pct = st.slider("Down Payment (%)", 0, 100, 20)
+
+    annual_cashflow = (monthly_rent - monthly_expenses) * 12
+    down_payment = purchase_price * down_payment_pct / 100
+    roi = (annual_cashflow / down_payment) * 100 if down_payment else 0
+    cap_rate = (annual_cashflow / purchase_price) * 100 if purchase_price else 0
+
+    # --- Deal Score Calculation ---
+    roi_score = min(roi / 20 * 30, 30)
+    cashflow_score = min((monthly_rent - monthly_expenses) / 300 * 30, 30)
+    cap_score = min(cap_rate / 10 * 20, 20)
+    bonus_score = 10 if roi > 10 and (monthly_rent - monthly_expenses) > 250 else 0
+    deal_score = roi_score + cashflow_score + cap_score + bonus_score
+
     if st.button("🔍 Analyze Deal"):
-        dp = price * dp_pct / 100
-        loan = price - dp
-        m_pay = npf.pmt(ir/100/12, term * 12, -loan)
-        net = rent - exp - m_pay
-        st.metric("Monthly Mortgage", f"${m_pay:,.2f}")
-        st.metric("Net Monthly Cash Flow", f"${net:,.2f}")
-        # Deal Score / Investment Rating
-        cap_rate = (rent * 12) / price if price > 0 else 0
-        coc_return = (net * 12) / dp if dp > 0 else 0
-        score = (cap_rate * 100 * 0.5) + (coc_return * 100 * 0.5)
-        rating = (
-            "Excellent" if score >= 20 else
-            "Good" if score >= 10 else
-            "Average" if score >= 5 else
-            "Poor"
-        )
-        st.metric("Deal Score", f"{score:.1f}", delta=rating)
-        # Explanation and Improvement Tips
-        st.markdown("**How the Deal Score is Calculated:**")
-        st.markdown(
-            "- **Cap Rate (50%)**: (Annual Rent / Purchase Price) * 100.\n"
-            "- **Cash-on-Cash Return (50%)**: (Annual Net Cash Flow / Down Payment) * 100.\n"
-            "- The score is the average of these two metrics, scaled to 0–100."
-        )
-        st.markdown("**Tips to Improve Your Deal Score:**")
-        st.markdown(
-            "- Increase **Monthly Rent** or project higher rent growth.\n"
-            "- Reduce **Monthly Expenses** through efficient management or lower operating costs.\n"
-            "- Increase **Down Payment** to improve cash-on-cash return.\n"
-            "- Negotiate a lower **Purchase Price** to boost both Cap Rate and Cash-on-Cash Return."
-        )
+        st.metric("📊 Deal Score (0–100)", f"{deal_score:.1f}")
+
+        col1, col2, col3 = st.columns(3)
+        col1.metric("💰 Annual Cash Flow", f"${annual_cashflow:,.0f}")
+        col2.metric("📉 Cap Rate", f"{cap_rate:.1f}%")
+        col3.metric("📈 ROI (Cash-on-Cash)", f"{roi:.1f}%")
+
+        st.markdown("### 💵 Investment Details")
+        col4, col5 = st.columns(2)
+        col4.metric("🏦 Down Payment", f"${down_payment:,.0f}")
+        col5.metric("📆 Monthly Cash Flow", f"${monthly_rent - monthly_expenses:,.0f}")
+
+        if deal_score >= 85:
+            st.success("🏆 Excellent deal!")
+        elif deal_score >= 70:
+            st.info("👍 Solid deal")
+        elif deal_score >= 50:
+            st.warning("⚠️ Needs work")
+        else:
+            st.error("🚫 Risky deal")
+
+        st.markdown("### 📊 Deal Score Breakdown")
+        score_data = {
+            "Category": ["ROI", "Monthly Cash Flow", "Cap Rate", "Bonus"],
+            "Score (out of 100)": [
+                f"{roi_score:.1f}/30",
+                f"{cashflow_score:.1f}/30",
+                f"{cap_score:.1f}/20",
+                f"{bonus_score}/10"
+            ],
+            "Improvement Tips": [
+                "Increase annual cash flow or reduce down payment",
+                "Raise rent or reduce expenses",
+                "Improve purchase-to-income ratio",
+                "Ensure ROI > 10% and monthly cash flow > $250"
+            ]
+        }
+        st.table(pd.DataFrame(score_data))
 
 # -------- Break-Even Calculator --------
 elif page == "💡 Break-Even Calculator":
-    st.header("⚖️ Break-Even Calculator")
-    rev = st.number_input("Monthly Revenue", value=5000)
-    fc = st.number_input("Fixed Costs", value=2000)
-    vc_pct = st.slider("Variable Costs % of Revenue", 0, 100, 30)
-    be_rev = fc / (1 - vc_pct / 100) if vc_pct < 100 else 0
-    st.metric("Break-Even Revenue", f"${be_rev:,.2f}")
+    st.header("💡 Break-Even Calculator")
+    st.markdown("Calculate the rent you need to break even after covering mortgage and expenses.")
 
+    col1, col2 = st.columns(2)
+    with col1:
+        purchase_price = st.number_input("Purchase Price ($)", value=250000)
+        down_payment_pct = st.slider("Down Payment (%)", 0, 100, 20)
+        interest_rate = st.number_input("Loan Interest Rate (%)", value=6.5)
+        loan_term = st.selectbox("Loan Term (Years)", [15, 30], index=1)
+    with col2:
+        taxes_insurance = st.number_input("Taxes + Insurance + HOA ($/mo)", value=300)
+        maintenance_pct = st.slider("Maintenance (% of Rent)", 0, 20, 10)
+        management_pct = st.slider("Management (% of Rent)", 0, 20, 8)
+        vacancy_rate = st.slider("Vacancy Rate (%)", 0, 20, 5)
+
+    loan_amount = purchase_price * (1 - down_payment_pct / 100)
+    monthly_interest = interest_rate / 100 / 12
+    months = loan_term * 12
+    mortgage_payment = npf.pmt(monthly_interest, months, -loan_amount) if loan_amount > 0 else 0
+
+    # Estimate break-even rent
+    def calc_break_even_rent():
+        for rent in range(500, 5000, 10):
+            maintenance = rent * (maintenance_pct / 100)
+            management = rent * (management_pct / 100)
+            vacancy_loss = rent * (vacancy_rate / 100)
+            expenses = taxes_insurance + maintenance + management + vacancy_loss
+            cash_flow = rent - (mortgage_payment + expenses)
+            if cash_flow >= 0:
+                return rent
+        return None
+
+    breakeven_rent = calc_break_even_rent()
+    if breakeven_rent:
+        st.success(f"✅ Estimated Break-Even Rent: ${breakeven_rent:,.0f}/mo")
+        st.metric("Mortgage Payment", f"${mortgage_payment:,.0f}/mo")
+
+        # Chart: Rent vs. Cash Flow
+        rent_range = np.arange(breakeven_rent - 800, breakeven_rent + 800, 50)
+        cash_flows = []
+        for r in rent_range:
+            maintenance = r * (maintenance_pct / 100)
+            management = r * (management_pct / 100)
+            vacancy_loss = r * (vacancy_rate / 100)
+            expenses = taxes_insurance + maintenance + management + vacancy_loss
+            cash_flow = r - (mortgage_payment + expenses)
+            cash_flows.append(cash_flow)
+        df_cf = pd.DataFrame({"Rent": rent_range, "Cash Flow": cash_flows})
+        st.line_chart(df_cf.set_index("Rent"))
+
+        # Export option
+        df_cf_export = df_cf.copy()
+        df_cf_export.loc[len(df_cf_export)] = ["Generated by Smart Rental Analyzer"] + [""] * (len(df_cf_export.columns)-1)
+        csv_data = df_cf_export.to_csv(index=False).encode('utf-8')
+
+        st.download_button(
+            label="⬇️ Download Cash Flow Table (CSV)",
+            data=csv_data,
+            file_name="break_even_cash_flow.csv",
+            mime="text/csv"
+        )
+
+    else:
+        st.error("❌ No break-even rent found in range. Try adjusting your inputs.")
 # -------- ROI & Projections --------
 elif page == "📘 ROI & Projections":
-    st.header("📘 ROI & Multi-Year Projection")
-    price = st.number_input("Purchase Price", value=300000, key="roi_price")
-    rent = st.number_input("Monthly Rent", value=2200, key="roi_rent")
-    exp = st.number_input("Monthly Expenses", value=300, key="roi_exp")
-    ir = st.number_input("Discount Rate %", value=6.5, key="roi_ir")
-    years = st.slider("Projection Years", 1, 30, 10)
-    if st.button("🧮 Calculate ROI"):
-        cf = [-price] + [rent - exp for _ in range(years)]
-        npv = npf.npv(ir / 100, cf)
-        irr = npf.irr(cf)
-        dfp = pd.DataFrame({'Year': range(0, years + 1), 'Cash Flow': cf})
-        st.line_chart(dfp.set_index('Year'))
-        st.metric("NPV", f"${npv:,.2f}")
-        st.metric("IRR", f"{irr * 100:.2f}%")
+    st.header("📘 ROI & Multi-Year Projections")
+    st.markdown("Forecast your returns over time with appreciation, rent growth, and debt paydown.")
+
+    col1, col2 = st.columns(2)
+    with col1:
+        purchase_price = st.number_input("Purchase Price ($)", value=250000)
+        down_payment_pct = st.slider("Down Payment (%)", 0, 100, 20)
+        interest_rate = st.number_input("Loan Interest Rate (%)", value=6.5)
+        loan_term = st.selectbox("Loan Term (Years)", [15, 30], index=1)
+        years = st.slider("Years to Project", 1, 30, 5)
+    with col2:
+        monthly_rent = st.number_input("Starting Monthly Rent ($)", value=2200)
+        expenses = st.number_input("Monthly Operating Expenses ($)", value=800)
+        rent_growth = st.slider("Rent Growth (%/yr)", 0, 10, 3)
+        expense_growth = st.slider("Expense Growth (%/yr)", 0, 10, 2)
+        appreciation = st.slider("Property Appreciation (%/yr)", 0, 10, 3)
+
+    # Loan Calculations
+    down_payment = purchase_price * down_payment_pct / 100
+    loan_amount = purchase_price - down_payment
+    monthly_interest = interest_rate / 100 / 12
+    total_months = loan_term * 12
+    mortgage_payment = npf.pmt(monthly_interest, total_months, -loan_amount)
+
+    # Projection Calculations
+    schedule = []
+    balance = loan_amount
+    rent = monthly_rent
+    op_exp = expenses
+    value = purchase_price
+    total_cashflow = 0
+    roi_rows = []
+
+    for year in range(1, years + 1):
+        annual_cf = (rent - op_exp - mortgage_payment) * 12
+        interest_paid = 0
+        principal_paid = 0
+        for _ in range(12):
+            interest = balance * monthly_interest
+            principal = mortgage_payment - interest
+            balance -= principal
+            interest_paid += interest
+            principal_paid += principal
+
+        equity = value - balance
+        roi = ((annual_cf + equity) / down_payment) * 100
+        roi_rows.append([year, f"${rent*12:,.0f}", f"${op_exp*12:,.0f}", f"${annual_cf:,.0f}", f"${equity:,.0f}", f"{roi:.1f}%"])
+
+        rent *= (1 + rent_growth / 100)
+        op_exp *= (1 + expense_growth / 100)
+        value *= (1 + appreciation / 100)
+        total_cashflow += annual_cf
+
+    df_proj = pd.DataFrame(roi_rows, columns=["Year", "Annual Rent", "Annual Expenses", "Cash Flow", "Equity", "ROI"])
+    st.dataframe(df_proj, use_container_width=True)
+
+    st.subheader("📈 ROI Over Time")
+    roi_vals = [float(r[-1].replace('%','')) for r in roi_rows]
+    st.line_chart(pd.DataFrame({"ROI %": roi_vals}, index=list(range(1, years+1))))
+
+    # Download CSV
+# Inside ROI & Projections page
+    df_roi_export = df_proj.copy()
+    df_roi_export.loc[len(df_roi_export)] = ["Generated by Smart Rental Analyzer"] + [""] * (len(df_roi_export.columns)-1)
+    csv_roi = df_roi_export.to_csv(index=False).encode('utf-8')
+
+    st.download_button("⬇️ Download ROI Projection Table (CSV)", csv_roi, file_name="roi_projection.csv", mime="text/csv")
+
+
+
 
 # -------- Property Comparison (Pro) --------
 elif page == "💎 Property Comparison (Pro)":
-    st.header("📈 Multi-Property Comparison")
+    st.header("💎 Multi-Property Comparison")
     st.write("**Pro Feature**")
-    count = st.radio("Number of Properties", [2, 3], horizontal=True)
+
+    count = st.radio("Number of Properties", [2, 3, 4, 5], horizontal=True)
     cols = st.columns(count)
     props = []
+
     for i in range(count):
         with cols[i]:
             lbl = f"Property {chr(65 + i)}"
@@ -180,71 +317,180 @@ elif page == "💎 Property Comparison (Pro)":
             dp_pct = st.number_input(f"Down Payment % ({lbl})", value=20.0, key=f"pc_dp_{i}")
             rent = st.number_input(f"Monthly Rent ({lbl})", value=2200, key=f"pc_rent_{i}")
             exp = st.number_input(f"Monthly Expenses ({lbl})", value=300, key=f"pc_exp_{i}")
-            props.append({"lbl": lbl, "price": price, "dp": price * dp_pct / 100, "rent": rent, "exp": exp})
+            appreciation = st.slider(f"Appreciation Rate % ({lbl})", 0, 10, 3, key=f"pc_app_{i}")
+            interest = st.number_input(f"Interest Rate % ({lbl})", value=6.5, key=f"pc_int_{i}")
+            term = st.selectbox(f"Loan Term ({lbl})", [15, 30], index=1, key=f"pc_term_{i}")
+
+            dp = price * dp_pct / 100
+            loan = price - dp
+            months = term * 12
+            rate = interest / 100 / 12
+            payment = npf.pmt(rate, months, -loan) if loan > 0 else 0
+            annual_cf = (rent - exp - payment) * 12
+            cap = (annual_cf / price) * 100 if price else 0
+            roi = (annual_cf / dp) * 100 if dp else 0
+            proj_val = price * ((1 + appreciation / 100) ** 5)
+            equity = proj_val - loan
+
+            props.append({"lbl": lbl, "Price": f"${price:,.0f}", "Rent": f"${rent:,.0f}", "Annual Cash Flow": f"${annual_cf:,.0f}", "Cap Rate": f"{cap:.1f}%", "ROI": f"{roi:.1f}%", "5-Yr Equity": f"${equity:,.0f}", "roi_val": roi})
+
     if st.button("Compare"):
-        metrics = {"Metric": ["Price", "Down", "Rent", "Exp"]}
-        for p in props:
-            metrics[p['lbl']] = [f"${p['price']:,}", f"${p['dp']:,}", f"${p['rent']:,}", f"${p['exp']:,}"]
-        dfc = pd.DataFrame(metrics)
-        st.table(dfc)
+        st.markdown("### 📊 Comparison Table")
+        df_props = pd.DataFrame([{k: v for k, v in p.items() if k != "roi_val"} for p in props])
+        st.dataframe(df_props, use_container_width=True)
+
+        try:
+            best_idx = max(range(len(props)), key=lambda i: props[i]['roi_val'])
+            best_property = props[best_idx]['lbl']
+            st.success(f"🏆 Best ROI: {best_property}")
+        except:
+            st.warning("Unable to determine best ROI.")
+
         pdf = FPDF()
         pdf.add_page()
         pdf.set_font("Arial", size=12)
         pdf.set_font("Arial", style="B", size=14)
         pdf.cell(0, 10, "Property Comparison Report", ln=True, align='C')
-        for idx, m in enumerate(metrics["Metric"]):
-            line = m + ": " + ", ".join([f"{p['lbl']} {metrics[p['lbl']][idx]}" for p in props])
+        for metric in ["Price", "Rent", "Annual Cash Flow", "Cap Rate", "ROI", "5-Yr Equity"]:
+            line = metric + ": " + ", ".join([f"{p['lbl']} {p[metric]}" for p in props])
             pdf.multi_cell(0, 8, line)
         b = pdf.output(dest='S').encode('latin1')
         st.download_button("⬇️ Download PDF", data=b, file_name="comparison.pdf", mime="application/pdf")
-
 # -------- Advanced Analytics (Pro) --------
 elif page == "🧪 Advanced Analytics (Pro)":
     st.header("🧪 Advanced Analytics & Forecasting")
     st.markdown("Explore long-term performance with charts, forecasts, and scenario analysis.")
 
-    # 1. 5-Year Forecast: Cash Flow and Equity
-    st.subheader("📈 5-Year Forecast")
+    # Scenario Selection
+    scenario = st.radio("Choose a Scenario", ["Conservative", "Base", "Aggressive", "Custom"])
+    if scenario == "Conservative":
+        rent_growth = 1.5
+        appreciation = 2.0
+        expense_growth = 3.0
+    elif scenario == "Aggressive":
+        rent_growth = 4.0
+        appreciation = 5.0
+        expense_growth = 1.5
+    elif scenario == "Base":
+        rent_growth = 2.5
+        appreciation = 3.0
+        expense_growth = 2.0
+    else:
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            rent_growth = st.number_input("Rent Growth (% per year)", value=2.5)
+        with col2:
+            appreciation = st.number_input("Property Appreciation (% per year)", value=3.0)
+        with col3:
+            expense_growth = st.number_input("Expense Growth (% per year)", value=2.0)
+
+    st.subheader("📈 5-Year Projection")
+    purchase_price = 250000
+    rent = 2200
+    expenses = 800
+    loan_amount = 200000
+    interest = 0.065 / 12
+    months = 30 * 12
+    mortgage_payment = npf.pmt(interest, months, -loan_amount)
+
     years = list(range(1, 6))
-    cash_flow = [6000, 7200, 8500, 9000, 9600]  # Placeholder
-    equity = [20000, 40000, 65000, 90000, 120000]  # Placeholder
+    cashflow_list = []
+    equity_list = []
+    roi_list = []
+    balance = loan_amount
+    value = purchase_price
 
-    fig1 = go.Figure()
-    fig1.add_trace(go.Scatter(x=years, y=cash_flow, mode='lines+markers', name='Cash Flow'))
-    fig1.add_trace(go.Scatter(x=years, y=equity, mode='lines+markers', name='Equity'))
-    fig1.update_layout(title="Cash Flow & Equity Growth", xaxis_title="Year", yaxis_title="USD")
-    st.plotly_chart(fig1, use_container_width=True)
+    for year in years:
+        annual_cf = (rent - expenses - mortgage_payment) * 12
+        for _ in range(12):
+            interest_paid = balance * interest
+            principal_paid = mortgage_payment - interest_paid
+            balance -= principal_paid
+        equity = value - balance
+        roi = ((annual_cf + equity) / (purchase_price - loan_amount)) * 100
 
-    # 2. Sensitivity: Rent vs. Cash Flow
-    st.subheader("📊 Rent Sensitivity")
-    base_expense = 1800
-    rent_vals = np.arange(1800, 2800, 100)
+        cashflow_list.append(annual_cf)
+        equity_list.append(equity)
+        roi_list.append(roi)
+
+        rent *= (1 + rent_growth / 100)
+        expenses *= (1 + expense_growth / 100)
+        value *= (1 + appreciation / 100)
+
+    # Multi-line Chart
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=years, y=cashflow_list, mode='lines+markers', name='Cash Flow'))
+    fig.add_trace(go.Scatter(x=years, y=equity_list, mode='lines+markers', name='Equity'))
+    fig.add_trace(go.Scatter(x=years, y=roi_list, mode='lines+markers', name='ROI %'))
+    fig.update_layout(title="5-Year Projection: Cash Flow, Equity, ROI", xaxis_title="Year", yaxis_title="USD / %")
+    st.plotly_chart(fig, use_container_width=True)
+
+    # 2. Rent Sensitivity
+    st.subheader("📊 Rent Sensitivity Table")
+    col_r1, col_r2 = st.columns(2)
+    with col_r1:
+        min_rent = st.number_input("Minimum Rent ($)", value=1800)
+        max_rent = st.number_input("Maximum Rent ($)", value=2800)
+    with col_r2:
+        rent_step = st.number_input("Rent Step ($)", value=100)
+        base_expense = st.number_input("Fixed Expenses ($)", value=1800)
+
+    rent_vals = np.arange(min_rent, max_rent + rent_step, rent_step)
     cash_flows = rent_vals - base_expense
     df_sens = pd.DataFrame({'Rent': rent_vals, 'Cash Flow': cash_flows})
-    st.line_chart(df_sens.set_index('Rent'))
+    st.dataframe(df_sens)
+    df_sens_export = df_sens.copy()
+    df_sens_export.loc[len(df_sens_export)] = ["Generated by Smart Rental Analyzer"] + [""] * (len(df_sens_export.columns)-1)
+    csv_sens = df_sens_export.to_csv(index=False).encode('utf-8')
+
+    st.download_button("⬇️ Download Rent Sensitivity (CSV)", data=csv_sens, file_name="rent_sensitivity.csv", mime="text/csv")
+
 
     # 3. Stress Test Table
-    st.markdown("""
-    **Stress Test Legend**  
-    - **Vacancy %**: How often your unit is unoccupied over a year.  
-    - **Maintenance %**: What percent of rent you reserve for ongoing repairs and upkeep.
-    """)
     st.subheader("📉 Vacancy & Expense Stress Test")
+
+    with st.expander("Customize Stress Test Inputs", expanded=True):
+        col_a, col_b, col_c = st.columns(3)
+        with col_a:
+            stress_rent = st.number_input("Monthly Rent ($)", value=2400)
+        with col_b:
+            base_op_exp = st.number_input("Base Operating Expenses ($)", value=800)
+        with col_c:
+            mortgage_toggle = st.checkbox("Include Mortgage", value=True)
+
+        if mortgage_toggle:
+            loan_amt = st.number_input("Loan Amount ($)", value=200000)
+            rate = st.number_input("Interest Rate (%)", value=6.5) / 100 / 12
+            term = st.selectbox("Loan Term (Years)", [15, 30], index=1)
+            months = term * 12
+            mortgage_payment = npf.pmt(rate, months, -loan_amt)
+        else:
+            mortgage_payment = 0
+
     vacancies = [0.0, 0.05, 0.1, 0.15]
     maint_pct = [0.05, 0.1, 0.15]
-    rent = 2400
-    base_operating = 800
     stress_data = []
     for v in vacancies:
         row = []
         for m in maint_pct:
-            effective_income = rent * (1 - v)
-            expenses = base_operating + (rent * m)
-            net = effective_income - expenses
+            effective_income = stress_rent * (1 - v)
+            maintenance = stress_rent * m
+            total_exp = base_op_exp + maintenance + mortgage_payment
+            net = effective_income - total_exp
             row.append(round(net, 2))
         stress_data.append(row)
+
     stress_df = pd.DataFrame(stress_data, columns=[f"{int(p*100)}% Maint" for p in maint_pct], index=[f"{int(v*100)}% Vac" for v in vacancies])
     st.dataframe(stress_df)
+
+    # Export CSV
+    df_stress_export = stress_df.copy()
+    df_stress_export.loc[len(df_stress_export)] = ["Generated by Smart Rental Analyzer"] + [""] * (len(df_stress_export.columns)-1)
+    csv_stress = df_stress_export.to_csv(index=False).encode('utf-8')
+
+    st.download_button("⬇️ Download Stress Test (CSV)", data=csv_stress, file_name="stress_test.csv", mime="text/csv")
+
+
 
 # -------- Rehab & Refi (Pro) --------
 elif page == "🏚 Rehab & Refi (Pro)":
@@ -288,20 +534,7 @@ elif page == "🏚 Rehab & Refi (Pro)":
         st.metric("🧾 New Monthly Payment", f"${new_payment:,.2f}")
         st.metric("💳 New Loan Amount", f"${new_principal:,.0f}")
         st.metric("💵 Cash Pulled Out", f"${cash_out:,.0f}")
-elif page == "📄 Download Reports":
-    st.header("📄 Export Data")
-    if 'dfp' in locals():
-        st.download_button("Download Projection CSV", dfp.to_csv(index=False), "projection.csv")
-    if st.button("Generate PDF Report"):
-        pdf = FPDF()
-        pdf.add_page()
-        pdf.set_font("Arial", 12)
-        pdf.set_font("Arial", "B", 14)
-        pdf.cell(0, 10, "Smart Rental Analyzer Report", ln=True, align='C')
-        pdf.output("report.pdf")
-        st.success("report.pdf created")
 
-# -------- Glossary --------
 if page == "📖 Glossary":
     st.header("📖 Real Estate & Investment Glossary")
     glossary = {
