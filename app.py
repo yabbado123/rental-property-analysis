@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
 import numpy_financial as npf
-from fpdf import 
+
 
 # -------- Configuration & Styles --------
 left, center, right = st.columns([2.25, 2, 0.8])
