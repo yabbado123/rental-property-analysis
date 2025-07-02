@@ -190,6 +190,7 @@ elif page == "💎 Property Comparison (Pro)":
         pdf = FPDF()
         pdf.add_page()
         pdf.set_font("Arial", size=12)
+        pdf.set_font("Arial", style="B", size=14)
         pdf.cell(0, 10, "Property Comparison Report", ln=True, align='C')
         for idx, m in enumerate(metrics["Metric"]):
             line = m + ": " + ", ".join([f"{p['lbl']} {metrics[p['lbl']][idx]}" for p in props])
@@ -294,33 +295,45 @@ elif page == "📄 Download Reports":
     if st.button("Generate PDF Report"):
         pdf = FPDF()
         pdf.add_page()
-        pdf.set_font("Arial", size 12)
+        pdf.set_font("Arial", 12)
+        pdf.set_font("Arial", "B", 14)
         pdf.cell(0, 10, "Smart Rental Analyzer Report", ln=True, align='C')
         pdf.output("report.pdf")
         st.success("report.pdf created")
 
 # -------- Glossary --------
-elif page == "📖 Glossary":
-    st.header("📖 Glossary")
+if page == "📖 Glossary":
+    st.header("📖 Real Estate & Investment Glossary")
     glossary = {
         "Appraisal": "A professional estimate of a property's market value.",
-        "Cap Rate": "Net Operating Income / Purchase Price.",
-        "Cash Flow": "Income after expenses and debt payments.",
-        "Cash on Cash Return": "Annual cash flow divided by cash invested.",
-        "Closing Costs": "Fees paid at closing (title, lender, taxes).",
-        "Comps": "Comparables used to value similar properties.",
-        "Depreciation": "Tax deduction spreading cost over property life.",
-        "Equity": "Market Value - Loan Balance.",
-        "Escrow": "Third-party holding funds/documents.",
-        "GRM": "Gross Rent Multiplier: Price / Annual Rent.",
-        "HOA": "Homeowners Association fees and rules.",
-        "IRR": "Internal Rate of Return.",
-        "LTV": "Loan-to-Value ratio.",
-        "NOI": "Net Operating Income (rent - op expenses).",
-        "NPV": "Net Present Value of future cash flows.",
-        "PMI": "Private Mortgage Insurance.",
-        "ROI": "Return on Investment.",
-        "Vacancy Rate": "Expected unoccupied time percentage."
+        "Cap Rate (Capitalization Rate)": "The annual Net Operating Income divided by the purchase price, showing the property's yield ignoring financing.",
+        "Cash Flow": "Money left over each month after all expenses and debt payments.",
+        "Cash on Cash Return": "Annual cash flow divided by your actual cash invested (down payment), showing your cash yield.",
+        "Closing Costs": "Fees paid at the final step of a real estate transaction (e.g., title, lender fees, taxes).",
+        "Comps (Comparables)": "Recently sold similar properties used to determine a property's value.",
+        "Depreciation": "A tax deduction that spreads out the cost of a property over its useful life.",
+        "Equity": "The portion of the property you truly own: Market Value - Loan Balance.",
+        "Escrow": "A neutral third-party account holding funds/documents during a transaction.",
+        "Gross Rent Multiplier (GRM)": "Ratio of property price to gross annual rent; used for quick valuation.",
+        "Hard Money Loan": "Short-term, high-interest loan secured by real estate, often used by flippers.",
+        "HOA (Homeowners Association)": "Organization managing a community and collecting fees for upkeep.",
+        "Inflation Rate": "Annual increase in expenses and costs.",
+        "Internal Rate of Return (IRR)": "The annualized return earned on an investment over time, accounting for timing of cash flows.",
+        "Leverage": "Using borrowed money to increase the potential return of an investment.",
+        "Loan-to-Value (LTV)": "Ratio of loan amount to property value. High LTV means more risk for lenders.",
+        "Maintenance": "Percentage of rent set aside for upkeep and repairs.",
+        "Management Fee": "Percentage of rent paid to a property manager.",
+        "Net Operating Income (NOI)": "Income from rent minus operating expenses (taxes, insurance, maintenance), excluding mortgage costs.",
+        "Net Present Value (NPV)": "The total value today of future cash flows minus the initial investment, used to evaluate profitability.",
+        "Operating Expenses": "Costs to run the property (e.g., insurance, taxes, maintenance, management).",
+        "Payback Period": "Time it takes to recoup your initial investment (down payment) from cash flows.",
+        "PMI (Private Mortgage Insurance)": "Insurance added to monthly payments when your down payment is <20%.",
+        "Principal": "The base amount of your loan, not including interest.",
+        "Rehab": "Renovating a property to improve value or condition.",
+        "Rent Growth Rate": "Expected annual increase in rent charged.",
+        "ROI (Return on Investment)": "Percentage gain or loss on your investment over time, including cash flow and equity gains.",
+        "Title": "Legal documentation showing who owns a property.",
+        "Vacancy Rate": "Percentage of time the property is expected to be unoccupied."
     }
-    for term in sorted(glossary):
+    for term in sorted(glossary.keys()):
         st.markdown(f"**{term}**: {glossary[term]}")
