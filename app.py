@@ -294,7 +294,7 @@ elif page == "📄 Download Reports":
     if st.button("Generate PDF Report"):
         pdf = FPDF()
         pdf.add_page()
-        pdf.set_font("Arial", 12)
+        pdf.set_font("Arial", size 12)
         pdf.cell(0, 10, "Smart Rental Analyzer Report", ln=True, align='C')
         pdf.output("report.pdf")
         st.success("report.pdf created")
