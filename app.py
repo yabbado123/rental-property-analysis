@@ -190,7 +190,6 @@ elif page == "💎 Property Comparison (Pro)":
         pdf = FPDF()
         pdf.add_page()
         pdf.set_font("Arial", size=12)
-
         pdf.cell(0, 10, "Property Comparison Report", ln=True, align='C')
         for idx, m in enumerate(metrics["Metric"]):
             line = m + ": " + ", ".join([f"{p['lbl']} {metrics[p['lbl']][idx]}" for p in props])
