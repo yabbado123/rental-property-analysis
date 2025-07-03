@@ -29,7 +29,7 @@ st.markdown("""
 **📧 Email:** [smart-rental-analyzer@outlook.com](mailto:smart-rental-analyzer@outlook.com)  
 """)
 
-st.markdown("<style>body { background-color: #1e1e1e; color: white; }</style>", unsafe_allow_html=True)
+
 
 
 # -------- Top Navigation --------
