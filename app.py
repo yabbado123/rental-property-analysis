@@ -5,74 +5,6 @@ import plotly.graph_objs as go
 import numpy_financial as npf
 from fpdf import FPDF
 
-# ── DARK MODE TOGGLE ───────────────────────────────────────────────────────
-is_dark = st.toggle("🌗 Dark Mode", value=True)
-
-if is_dark:
-    st.markdown("""
-    <style>
-      /* ── APP CANVAS ── */
-      html, body, [data-testid="stApp"] {
-        background-color: #000000 !important;
-        color: #FFFFFF      !important;
-      }
-
-      /* ── BUTTONS ── */
-      .stButton > button,
-      .stDownloadButton > button {
-        background-color: #000000 !important;
-        color: #FFFFFF           !important;
-        border: 1px solid #333   !important;
-        border-radius: 4px       !important;
-      }
-
-      /* ── INPUTS & TEXTAREAS ── */
-      .stTextInput input,
-      .stNumberInput input,
-      .stTextArea textarea {
-        background-color: #000000 !important;
-        color: #FFFFFF           !important;
-        border: 1px solid #333   !important;
-        border-radius: 4px       !important;
-      }
-
-      /* ── SELECTBOX TRIGGER ── */
-      .stSelectbox > div > div {
-        background-color: #000000 !important;
-        color: #FFFFFF           !important;
-        border: 1px solid #333   !important;
-        border-radius: 4px       !important;
-      }
-
-      /* ── DROPDOWN MENU ITEMS ── */
-      ul[role="listbox"] {
-        background-color: #000000 !important;
-        color: #FFFFFF           !important;
-      }
-      ul[role="listbox"] li:hover {
-        background-color: #111111 !important;
-      }
-
-      /* ── CHARTS (Plotly) ── */
-      .stPlotlyChart svg,
-      .js-plotly-plot .plot-container,
-      .plot-container {
-        background-color: #000000 !important;
-      }
-
-      /* ── TABLES ── */
-      table, th, td {
-        background-color: #000000 !important;
-        color: #FFFFFF           !important;
-      }
-    </style>
-    """, unsafe_allow_html=True)
-else:
-    # Light mode: leave default or add your light CSS here
-    pass
-
-
-
 
 
 
@@ -88,6 +20,96 @@ st.markdown("### 📬 Contact Me")
 st.markdown(""" 
 **📧 Email:** [smart-rental-analyzer@outlook.com](mailto:smart-rental-analyzer@outlook.com)  
 """)
+
+is_light = st.toggle("☀️ Light Mode", value=False)
+
+if is_light:
+    st.markdown("""
+    <style>
+      /* ── FORCE LIGHT MODE ── */
+      html, body, [data-testid="stApp"] {
+        background-color: #FFFFFF !important;
+      }
+      /* global text override */
+      * {
+        color: #000000 !important;
+        background-color: transparent !important;
+      }
+
+      /* ── TOGGLE SWITCH ── */
+      /* BaseWeb switch wrapper */
+      div[data-baseweb="switch"] {
+        background-color: #000000 !important;
+        padding: 4px 8px !important;
+        border-radius: 12px !important;
+        display: inline-block !important;
+      }
+      /* The label text next to the switch */
+      div[data-baseweb="switch"] label {
+        color: #FFFFFF !important;
+        font-weight: bold !important;
+      }
+      /* The actual checkbox track */
+      div[data-baseweb="switch"] .baseweb-switch--outer {
+        background-color: #333333 !important;
+      }
+      /* The moving thumb */
+      div[data-baseweb="switch"] .baseweb-switch--inner {
+        background-color: #FFFFFF !important;
+      }
+
+      /* ── BUTTONS ── */
+      .stButton > button,
+      .stDownloadButton > button {
+        background-color: #EEEEEE !important;
+        color: #000000           !important;
+        border: 1px solid #CCC   !important;
+        border-radius: 4px       !important;
+      }
+
+      /* ── INPUTS & TEXTAREAS ── */
+      .stTextInput input,
+      .stNumberInput input,
+      .stTextArea textarea {
+        background-color: #FFFFFF !important;
+        border: 1px solid #CCC   !important;
+        color: #000000           !important;
+        border-radius: 4px       !important;
+      }
+
+      /* ── SELECTBOX TRIGGER ── */
+      .stSelectbox > div > div {
+        background-color: #FFFFFF !important;
+        color: #000000           !important;
+        border: 1px solid #CCC   !important;
+        border-radius: 4px       !important;
+      }
+
+      /* ── DROPDOWN MENU ITEMS ── */
+      ul[role="listbox"] {
+        background-color: #FFFFFF !important;
+        color: #000000           !important;
+      }
+      ul[role="listbox"] li:hover {
+        background-color: #EEEEEE !important;
+      }
+
+      /* ── CHARTS ── */
+      .stPlotlyChart svg,
+      .js-plotly-plot .plot-container,
+      .plot-container {
+        background-color: #FFFFFF !important;
+      }
+
+      /* ── TABLES ── */
+      table, th, td {
+        background-color: #FFFFFF !important;
+        color: #000000           !important;
+      }
+    </style>
+    """, unsafe_allow_html=True)
+
+
 
 
 
