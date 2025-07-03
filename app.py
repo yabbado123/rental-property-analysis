@@ -20,10 +20,28 @@ st.markdown("""
 st.markdown("""
 <style>
 #MainMenu, footer, header {visibility: hidden;}
-html, body {background-color: #414141; font-family: 'Inter', sans-serif;}
-.stButton > button, .stDownloadButton > button {border-radius:8px; font-weight:600;}
+html, body {
+    background-color: #0b172a; /* dark blue */
+    color: white !important;
+    font-family: 'Inter', sans-serif;
+}
+.stButton > button,
+.stDownloadButton > button {
+    border-radius: 8px;
+    font-weight: 600;
+}
+h1, h2, h3, h4, h5, h6, .stMarkdown, .stText, .stMetric, .css-1d391kg {
+    color: white !important;
+}
+.dataframe td, .dataframe th {
+    background-color: #0b172a !important;
+    color: white !important;
+    border-color: #1e293b !important;
+}
 </style>
 """, unsafe_allow_html=True)
+
+
 
 # -------- Top Navigation --------
 st.markdown("<h1 style='text-align:center;'>🏡 Smart Rental Analyzer</h1>", unsafe_allow_html=True)
@@ -71,14 +89,14 @@ if page == "🏠 Home":
             'Mobile Friendly',
             'AI Insights'
         ],
-        'S.R.A': ['✓','✓','✓','✓','✓','✓','✓','✓','✓','🚧','🚧'],
-        'BiggerPockets': ['✓','✓','✗','✗','✗','✗','✗','✓','✗','✓','✗'],
-        'Stessa':          ['✗','✓','✗','✗','✗','✗','✗','✓','✗','✓','✗'],
-        'Roofstock':       ['✓','✓','✗','✗','✗','✗','✗','✓','✓','✓','✗'],
-        'DealCheck':       ['✓','✓','✗','✗','✓','✗','✗','✓','✗','🚧','✗'],
-        'Mashvisor':       ['✓','✓','✗','✗','✗','✓','✗','✓','✗','✓','✗'],
-        'Rentometer':      ['✓','✗','✗','✗','✗','✗','✗','✗','✗','✓','✗'],
-        'Zilculator':      ['✓','✓','✓','✗','✓','✗','✗','✓','✗','✗','✗']
+        'S.R.A': ['✅','✅','✅','✅','✅','✅','✅','✅','✅','🚧','🚧'],
+        'BiggerPockets': ['✅','✅','❌','❌','❌','❌','❌','✅','❌','✅','❌'],
+        'Stessa':          ['❌','✅','❌','❌','❌','❌','❌','✅','❌','✅','❌'],
+        'Roofstock':       ['✅','✅','❌','❌','❌','❌','❌','✅','✅','✅','❌'],
+        'DealCheck':       ['✅','✅','❌','❌','✅','❌','❌','✅','❌','🚧','❌'],
+        'Mashvisor':       ['✅','✅','❌','❌','❌','✅','❌','✅','❌','✅','❌✗'],
+        'Rentometer':      ['✅','❌','❌','❌','❌','❌','❌','❌','❌','✅','❌'],
+        'Zilculator':      ['✅','✅','✅','❌','✅','❌','❌','✅','❌','❌','❌']
     }
     df_comp = pd.DataFrame(comp_data)
     # Generate alternating row colors
@@ -94,7 +112,8 @@ if page == "🏠 Home":
                       'color: orange;' if v in ['🚧','Partial'] else '')), 
             subset=df_comp.columns[1:]
         )
-        html = styled.set_table_attributes('class="dataframe"').to_html()
+        html = styled.set_table_attributes('class="dataframe" style="background-color:white; color:black;"').to_html()
+
         st.markdown(html, unsafe_allow_html=True)
 
 
