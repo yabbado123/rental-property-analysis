@@ -9,26 +9,27 @@ from fpdf import FPDF
 # ---- DARK / LIGHT MODE TOGGLE (Toggle Button) ----
 is_dark = st.toggle("🌗 Toggle Dark Mode", value=True)
 
+# ── DARK / LIGHT MODE TOGGLE ──────────────────────────────────────────────
+is_dark = st.toggle("🌗 Dark Mode", value=True)
+
 if is_dark:
     st.markdown("""
     <style>
+    /* ── GLOBAL BACKGROUND & TEXT ─────────────────── */
     html, body, [data-testid="stApp"] {
         background-color: #0E1117 !important;
         color: white !important;
     }
+    * { color: white !important; }   /* catch‑all text */
 
-    /* Global font color fix */
-    * {
-        color: white !important;
-    }
-
-    /* Input containers (number, text, textarea, select) */
+    /* ── GENERIC INPUTS (text, textarea, select) ─── */
     input, textarea, select {
         background-color: #000000 !important;
         color: white !important;
         border: 1px solid #444 !important;
     }
 
+    /* Streamlit‑specific inputs */
     .stTextInput input,
     .stNumberInput input,
     .stTextArea textarea,
@@ -38,31 +39,52 @@ if is_dark:
         border: 1px solid #444 !important;
     }
 
-    /* Dropdown trigger (the visible box) */
+    /* ── SPINNER (+ / –) & NUMBER BOX FIX ─────────── */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+        background-color: #262730;
+        color: white;
+        border: none;
+    }
+    input[type="number"] {
+        background-color: #262730 !important;
+        color: white !important;
+        border: 1px solid #444 !important;
+        border-radius: 6px;
+        -moz-appearance: textfield;   /* Firefox */
+    }
+
+    /* ── DROPDOWN (selectbox) STYLING ─────────────── */
+    /* Trigger box */
     div[data-baseweb="select"] {
         background-color: #262730 !important;
         color: white !important;
         border: 1px solid #444 !important;
         border-radius: 5px;
     }
-
-    /* Dropdown menu that appears */
+    /* Inner input & arrow */
+    div[data-baseweb="select"] input {
+        background-color: #262730 !important;
+        color: white !important;
+    }
+    div[data-baseweb="select"] svg {
+        fill: white !important;
+    }
+    /* Dropdown menu & options */
     ul[role="listbox"] {
         background-color: #262730 !important;
         color: white !important;
     }
-
     ul[role="listbox"] > li {
         background-color: #262730 !important;
         color: white !important;
     }
-
     ul[role="listbox"] > li:hover {
         background-color: #444 !important;
         color: white !important;
     }
 
-    /* Buttons */
+    /* ── BUTTONS ──────────────────────────────────── */
     .stButton > button,
     .stDownloadButton > button {
         background-color: #262730 !important;
@@ -71,28 +93,47 @@ if is_dark:
         border-radius: 6px;
     }
 
-    /* Plotly Chart background fix */
-    .js-plotly-plot .plot-container .svg-container {
+    /* ── CHART & TABLE BACKGROUNDS ────────────────── */
+    .js-plotly-plot .plot-container .svg-container,
+    .element-container .stPlotlyChart,
+    .plot-container {
         background-color: #0E1117 !important;
     }
-
-    .element-container .stPlotlyChart {
-        background-color: #0E1117 !important;
-    }
-
-    /* Table fix */
-    table {
+    table, th, td {
         background-color: #0E1117 !important;
         color: white !important;
     }
-
-    th, td {
-        background-color: #0E1117 !important;
-        color: white !important;
-    }
-
     </style>
     """, unsafe_allow_html=True)
+
+else:
+    # Light‑mode styles (keep or adjust as you like)
+    st.markdown("""
+    <style>
+    html, body, [data-testid="stApp"] {
+        background-color: #ffffff !important;
+        color: #111 !important;
+    }
+    input, textarea, select,
+    .stTextInput input,
+    .stNumberInput input,
+    .stTextArea textarea,
+    .stSelectbox div[data-baseweb="select"] {
+        background-color: #ffffff !important;
+        color: #111 !important;
+        border: 1px solid #ccc !important;
+    }
+    .stButton > button,
+    .stDownloadButton > button {
+        background-color: #dddddd !important;
+        color: black !important;
+        border: none;
+        border-radius: 6px;
+    }
+    /* Optional: tweak dropdown & chart/table backgrounds for light mode */
+    </style>
+    """, unsafe_allow_html=True)
+# ──────────────────────────────────────
 
 
 
