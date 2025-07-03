@@ -20,27 +20,10 @@ st.markdown("""
 st.markdown("""
 <style>
 #MainMenu, footer, header {visibility: hidden;}
-html, body {
-    background-color: #0b172a; /* dark blue */
-    color: white !important;
-    font-family: 'Inter', sans-serif;
-}
-.stButton > button,
-.stDownloadButton > button {
-    border-radius: 8px;
-    font-weight: 600;
-}
-h1, h2, h3, h4, h5, h6, .stMarkdown, .stText, .stMetric, .css-1d391kg {
-    color: white !important;
-}
-.dataframe td, .dataframe th {
-    background-color: #0b172a !important;
-    color: white !important;
-    border-color: #1e293b !important;
-}
+html, body {background-color: #5b5b5b; font-family: 'Inter', sans-serif;}
+.stButton > button, .stDownloadButton > button {border-radius:8px; font-weight:600;}
 </style>
 """, unsafe_allow_html=True)
-
 
 
 # -------- Top Navigation --------
@@ -112,8 +95,7 @@ if page == "🏠 Home":
                       'color: orange;' if v in ['🚧','Partial'] else '')), 
             subset=df_comp.columns[1:]
         )
-        html = styled.set_table_attributes('class="dataframe" style="background-color:white; color:black;"').to_html()
-
+        html = styled.set_table_attributes('class="dataframe"').to_html()
         st.markdown(html, unsafe_allow_html=True)
 
 
