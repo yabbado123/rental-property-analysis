@@ -12,29 +12,54 @@ is_dark = st.toggle("🌗 Toggle Dark Mode", value=True)
 if is_dark:
     st.markdown("""
     <style>
-    /* --- DARK MODE STYLES --- */
-
-    /* App background and base text */
     html, body, [data-testid="stApp"] {
-        background-color: #0E1117;
-        color: white;
+        background-color: #0E1117 !important;
+        color: white !important;
     }
 
-    /* Input fields */
+    /* Global font color fix */
+    * {
+        color: white !important;
+    }
+
+    /* Input containers (number, text, textarea, select) */
     input, textarea, select {
         background-color: #000000 !important;
         color: white !important;
         border: 1px solid #444 !important;
     }
 
-    /* Streamlit form widgets */
-    .stTextInput > div > div > input,
+    .stTextInput input,
     .stNumberInput input,
     .stTextArea textarea,
     .stSelectbox div[data-baseweb="select"] {
         background-color: #262730 !important;
         color: white !important;
         border: 1px solid #444 !important;
+    }
+
+    /* Dropdown trigger (the visible box) */
+    div[data-baseweb="select"] {
+        background-color: #262730 !important;
+        color: white !important;
+        border: 1px solid #444 !important;
+        border-radius: 5px;
+    }
+
+    /* Dropdown menu that appears */
+    ul[role="listbox"] {
+        background-color: #262730 !important;
+        color: white !important;
+    }
+
+    ul[role="listbox"] > li {
+        background-color: #262730 !important;
+        color: white !important;
+    }
+
+    ul[role="listbox"] > li:hover {
+        background-color: #444 !important;
+        color: white !important;
     }
 
     /* Buttons */
@@ -46,44 +71,29 @@ if is_dark:
         border-radius: 6px;
     }
 
-    /* Charts & tables */
-    .plot-container {
+    /* Plotly Chart background fix */
+    .js-plotly-plot .plot-container .svg-container {
         background-color: #0E1117 !important;
     }
 
+    .element-container .stPlotlyChart {
+        background-color: #0E1117 !important;
+    }
+
+    /* Table fix */
     table {
         background-color: #0E1117 !important;
         color: white !important;
     }
 
-    /* --- Dropdown Select Styling --- */
-    /* Dropdown trigger (the visible box) */
-    div[data-baseweb="select"] {
-        background-color: #0E1117 !important;
-        color: white !important;
-        border: 1px solid #0E1117 !important;
-        border-radius: 5px;
-    }
-
-    /* Dropdown menu that appears */
-    ul[role="listbox"] {
+    th, td {
         background-color: #0E1117 !important;
         color: white !important;
     }
 
-    /* Individual dropdown options */
-    ul[role="listbox"] > li {
-        background-color: #0E1117 !important;
-        color: white !important;
-    }
-
-    /* Highlighted (hovered) option */
-    ul[role="listbox"] > li:hover {
-        background-color: #0E1117 !important;
-        color: white !important;
-    }
     </style>
     """, unsafe_allow_html=True)
+
 
 
 
