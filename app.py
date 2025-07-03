@@ -5,64 +5,87 @@ import plotly.graph_objs as go
 import numpy_financial as npf
 from fpdf import FPDF
 
-st.markdown("""
-<style>
-/* Entire app background */
-html, body, [data-testid="stApp"] {
-    background-color: #1e1e1e;
-    color: white;
-}
 
-/* Input widgets */
-input, textarea, select {
-    background-color: #2c2c2c !important;
-    color: white !important;
-    border: 1px solid #444 !important;
-}
+# ---- DARK / LIGHT MODE TOGGLE (Toggle Button) ----
+is_dark = st.toggle("🌗 Toggle Dark Mode", value=True)
 
-/* Streamlit widgets */
-.stTextInput > div > div > input,
-.stNumberInput input,
-.stTextArea textarea,
-.stSelectbox div[data-baseweb="select"] {
-    background-color: #2c2c2c !important;
-    color: white !important;
-    border: 1px solid #444 !important;
-}
-
-/* Buttons */
-.stButton > button,
-.stDownloadButton > button {
-    background-color: #2c2c2c !important;
-    color: white !important;
-    border: none;
-    border-radius: 6px;
-}
-
-/* Plotly charts and tables */
-.plot-container {
-    background-color: #1e1e1e !important;
-}
-
-table {
-    background-color: #2c2c2c !important;
-    color: white !important;
-}
-</style>
-""", unsafe_allow_html=True)
-
-
-
-st.set_page_config(layout="wide")
-
-st.markdown("""
+if is_dark:
+    st.markdown("""
     <style>
+    /* --- DARK MODE STYLES --- */
+
+    /* App background and base text */
     html, body, [data-testid="stApp"] {
-        background-color: #101010;
+        background-color: #0E1117;
         color: white;
     }
+
+    /* Input fields */
+    input, textarea, select {
+        background-color: #000000 !important;
+        color: white !important;
+        border: 1px solid #444 !important;
+    }
+
+    /* Streamlit form widgets */
+    .stTextInput > div > div > input,
+    .stNumberInput input,
+    .stTextArea textarea,
+    .stSelectbox div[data-baseweb="select"] {
+        background-color: #262730 !important;
+        color: white !important;
+        border: 1px solid #444 !important;
+    }
+
+    /* Buttons */
+    .stButton > button,
+    .stDownloadButton > button {
+        background-color: #262730 !important;
+        color: white !important;
+        border: none;
+        border-radius: 6px;
+    }
+
+    /* Charts & tables */
+    .plot-container {
+        background-color: #0E1117 !important;
+    }
+
+    table {
+        background-color: #0E1117 !important;
+        color: white !important;
+    }
+
+    /* --- Dropdown Select Styling --- */
+    /* Dropdown trigger (the visible box) */
+    div[data-baseweb="select"] {
+        background-color: #0E1117 !important;
+        color: white !important;
+        border: 1px solid #0E1117 !important;
+        border-radius: 5px;
+    }
+
+    /* Dropdown menu that appears */
+    ul[role="listbox"] {
+        background-color: #0E1117 !important;
+        color: white !important;
+    }
+
+    /* Individual dropdown options */
+    ul[role="listbox"] > li {
+        background-color: #0E1117 !important;
+        color: white !important;
+    }
+
+    /* Highlighted (hovered) option */
+    ul[role="listbox"] > li:hover {
+        background-color: #0E1117 !important;
+        color: white !important;
+    }
     </style>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
+
+
 
 
 # -------- Configuration & Styles --------
