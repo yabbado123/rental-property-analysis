@@ -5,55 +5,63 @@ import plotly.graph_objs as go
 import numpy_financial as npf
 from fpdf import FPDF
 
-
-
-
-
-# ── DARK / LIGHT MODE TOGGLE ──────────────────────────────────────────────
+# ── DARK MODE TOGGLE ───────────────────────────────────────────────────────
 is_dark = st.toggle("🌗 Dark Mode", value=True)
 
 if is_dark:
     st.markdown("""
     <style>
-      /* App canvas */
+      /* App background & text */
       html, body, [data-testid="stApp"] {
         background: #121212 !important;
         color: #eee !important;
       }
 
-      /* Text/Number/Textarea inputs */
-      .stTextInput input,
-      .stNumberInput input,
-      .stTextArea textarea {
+      /* Buttons */
+      .stButton > button,
+      .stDownloadButton > button {
         background: #1e1e1e !important;
-        color: #eee !important;
-        border: 1px solid #333 !important;
+        color: #eee           !important;
+        border: none          !important;
+        border-radius: 4px    !important;
       }
 
-      /* Selectbox trigger */
+      /* Text, Number, Textarea inputs & Select trigger */
+      .stTextInput input,
+      .stNumberInput input,
+      .stTextArea textarea,
       .stSelectbox > div > div {
         background: #1e1e1e !important;
-        color: #eee !important;
-        border: 1px solid #333 !important;
+        color: #eee           !important;
+        border: 1px solid #333  !important;
+        border-radius: 4px      !important;
       }
 
       /* Dropdown menu items */
       ul[role="listbox"] {
         background: #1e1e1e !important;
-        color: #eee !important;
+        color: #eee           !important;
       }
       ul[role="listbox"] li:hover {
         background: #333 !important;
       }
 
-      /* Plotly charts */
-      .stPlotlyChart svg {
+      /* Plotly Charts */
+      .stPlotlyChart svg,
+      .js-plotly-plot .plot-container,
+      .plot-container {
         background: #121212 !important;
+      }
+
+      /* Tables */
+      table, th, td {
+        background: #121212 !important;
+        color: #eee           !important;
       }
     </style>
     """, unsafe_allow_html=True)
 else:
-    # (light mode – can leave default or add light overrides here)
+    # Light mode: leave default or add your light CSS here
     pass
 
 
