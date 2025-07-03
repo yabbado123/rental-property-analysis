@@ -33,7 +33,7 @@ if is_dark:
       .stSelectbox > div > div {
         background: #1e1e1e !important;
         color: #eee           !important;
-        border: 1px solid #555555  !important;
+        border: 1px solid #ffffff  !important;
         border-radius: 4px      !important;
       }
 
