@@ -6,134 +6,107 @@ import numpy_financial as npf
 from fpdf import FPDF
 
 
-# ---- DARK / LIGHT MODE TOGGLE (Toggle Button) ----
-is_dark = st.toggle("🌗 Toggle Dark Mode", value=True)
 
-# ── DARK / LIGHT MODE TOGGLE ──────────────────────────────────────────────
-is_dark = st.toggle("🌗 Dark Mode", value=True)
+# ── DARK / LIGHT MODE TOGGLE =====================================================
+is_dark = st.toggle("🌗 Dark Mode", value=True)
 
 if is_dark:
     st.markdown("""
     <style>
-    /* ── GLOBAL BACKGROUND & TEXT ─────────────────── */
+
+    /* ========== GLOBAL ========== */
     html, body, [data-testid="stApp"] {
         background-color: #0E1117 !important;
         color: white !important;
     }
-    * { color: white !important; }   /* catch‑all text */
+    * { color: white !important; }   /* force‑white text everywhere */
 
-    /* ── GENERIC INPUTS (text, textarea, select) ─── */
+    /* ========== GENERIC INPUTS ========== */
     input, textarea, select {
-        background-color: #000000 !important;
-        color: white !important;
-        border: 1px solid #444 !important;
-    }
-
-    /* Streamlit‑specific inputs */
-    .stTextInput input,
-    .stNumberInput input,
-    .stTextArea textarea,
-    .stSelectbox div[data-baseweb="select"] {
         background-color: #262730 !important;
         color: white !important;
         border: 1px solid #444 !important;
+        border-radius: 6px !important;
     }
-
-    /* ── SPINNER (+ / –) & NUMBER BOX FIX ─────────── */
     input[type="number"]::-webkit-inner-spin-button,
-    input[type="number"]::-webkit-outer-spin-button {
-        background-color: #262730;
-        color: white;
-        border: none;
-    }
-    input[type="number"] {
-        background-color: #262730 !important;
+    input[type="number"]::-webkit-outer-spin-button {      /* Chrome spinners */
+        background: #262730 !important;
         color: white !important;
+        border: none !important;
+    }
+    input[type="number"] { -moz-appearance: textfield; }   /* Firefox spinner */
+
+    /* ========== BASEWEB WRAPPERS (Streamlit widgets) ========== */
+    /* Number, text, password etc. */
+    div[data-baseweb="input"]            ,
+    /* TextArea */
+    div[data-baseweb="textarea"]         ,
+    /* Select trigger (closed state) */
+    div[data-baseweb="select"]           {
+        background-color: #262730 !important;
+        color: white           !important;
         border: 1px solid #444 !important;
-        border-radius: 6px;
-        -moz-appearance: textfield;   /* Firefox */
+        border-radius: 6px      !important;
     }
 
-    /* ── DROPDOWN (selectbox) STYLING ─────────────── */
-    /* Trigger box */
-    div[data-baseweb="select"] {
+    /* Actual <input> or <textarea> inside those wrappers */
+    div[data-baseweb="input"]    input ,
+    div[data-baseweb="textarea"] textarea ,
+    div[data-baseweb="select"]   input  {
         background-color: #262730 !important;
-        color: white !important;
-        border: 1px solid #444 !important;
-        border-radius: 5px;
-    }
-    /* Inner input & arrow */
-    div[data-baseweb="select"] input {
-        background-color: #262730 !important;
-        color: white !important;
-    }
-    div[data-baseweb="select"] svg {
-        fill: white !important;
-    }
-    /* Dropdown menu & options */
-    ul[role="listbox"] {
-        background-color: #262730 !important;
-        color: white !important;
-    }
-    ul[role="listbox"] > li {
-        background-color: #262730 !important;
-        color: white !important;
-    }
-    ul[role="listbox"] > li:hover {
-        background-color: #444 !important;
         color: white !important;
     }
 
-    /* ── BUTTONS ──────────────────────────────────── */
-    .stButton > button,
+    /* Dropdown list box & items */
+    ul[role="listbox"]                     { background:#262730 !important; }
+    ul[role="listbox"] > li               { background:#262730 !important; }
+    ul[role="listbox"] > li:hover         { background:#444    !important; }
+
+    /* Dropdown / number‑input SVG icons (chevron, + / – buttons) */
+    div[data-baseweb="select"] svg ,
+    div[data-baseweb="input"]  svg         { fill: white !important; }
+
+    /* ========== BUTTONS ========== */
+    .stButton > button ,
     .stDownloadButton > button {
-        background-color: #262730 !important;
-        color: white !important;
-        border: none;
-        border-radius: 6px;
+        background:#262730 !important;
+        color:white          !important;
+        border:none          !important;
+        border-radius:6px    !important;
     }
 
-    /* ── CHART & TABLE BACKGROUNDS ────────────────── */
-    .js-plotly-plot .plot-container .svg-container,
-    .element-container .stPlotlyChart,
-    .plot-container {
-        background-color: #0E1117 !important;
+    /* ========== CHART & TABLE BACKGROUNDS ========== */
+    .plot-container                    ,
+    .js-plotly-plot .svg-container     ,
+    .stPlotlyChart                     ,
+    table , th , td                    {
+        background-color:#0E1117 !important;
     }
-    table, th, td {
-        background-color: #0E1117 !important;
-        color: white !important;
-    }
+
     </style>
     """, unsafe_allow_html=True)
 
 else:
-    # Light‑mode styles (keep or adjust as you like)
+    # --- light mode =========================================================
     st.markdown("""
     <style>
     html, body, [data-testid="stApp"] {
-        background-color: #ffffff !important;
-        color: #111 !important;
+        background-color:#f5f5f5;
+        color:#111;
     }
-    input, textarea, select,
-    .stTextInput input,
-    .stNumberInput input,
-    .stTextArea textarea,
-    .stSelectbox div[data-baseweb="select"] {
-        background-color: #ffffff !important;
-        color: #111 !important;
-        border: 1px solid #ccc !important;
+    /* light wrappers */
+    div[data-baseweb="input"],
+    div[data-baseweb="textarea"],
+    div[data-baseweb="select"],
+    input, textarea, select {
+        background:#ffffff !important;
+        color:#111     !important;
+        border:1px solid #ccc !important;
+        border-radius:6px     !important;
     }
-    .stButton > button,
-    .stDownloadButton > button {
-        background-color: #dddddd !important;
-        color: black !important;
-        border: none;
-        border-radius: 6px;
-    }
-    /* Optional: tweak dropdown & chart/table backgrounds for light mode */
     </style>
     """, unsafe_allow_html=True)
-# ──────────────────────────────────────
+
 
 
 
