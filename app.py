@@ -7,115 +7,55 @@ from fpdf import FPDF
 
 
 
-# ── DARK / LIGHT MODE TOGGLE =====================================================
-is_dark = st.toggle("🌗 Dark Mode", value=True)
+
+
+# ── DARK / LIGHT MODE TOGGLE ──────────────────────────────────────────────
+is_dark = st.toggle("🌗 Dark Mode", value=True)
 
 if is_dark:
     st.markdown("""
     <style>
+      /* App canvas */
+      html, body, [data-testid="stApp"] {
+        background: #121212 !important;
+        color: #eee !important;
+      }
 
-    /* ========== GLOBAL ========== */
-    html, body, [data-testid="stApp"] {
-        background-color: #0E1117 !important;
-        color: white !important;
-    }
-    * { color: white !important; }   /* force‑white text everywhere */
+      /* Text/Number/Textarea inputs */
+      .stTextInput input,
+      .stNumberInput input,
+      .stTextArea textarea {
+        background: #1e1e1e !important;
+        color: #eee !important;
+        border: 1px solid #333 !important;
+      }
 
-    /* ========== GENERIC INPUTS ========== */
-    input, textarea, select {
-        background-color: #262730 !important;
-        color: white !important;
-        border: 1px solid #444 !important;
-        border-radius: 6px !important;
-    }
-    input[type="number"]::-webkit-inner-spin-button,
-    input[type="number"]::-webkit-outer-spin-button {      /* Chrome spinners */
-        background: #262730 !important;
-        color: white !important;
-        border: none !important;
-    }
-    input[type="number"] { -moz-appearance: textfield; }   /* Firefox spinner */
+      /* Selectbox trigger */
+      .stSelectbox > div > div {
+        background: #1e1e1e !important;
+        color: #eee !important;
+        border: 1px solid #333 !important;
+      }
 
-    /* ========== BASEWEB WRAPPERS (Streamlit widgets) ========== */
-    div[data-baseweb="input"] input,
-    div[data-baseweb="textarea"] textarea,
-    input, textarea, select {
-    background-color: #262730 !important;
-    color: white           !important;
-    border: 1px solid #444 !important;
-    border-radius: 6px     !important;
+      /* Dropdown menu items */
+      ul[role="listbox"] {
+        background: #1e1e1e !important;
+        color: #eee !important;
+      }
+      ul[role="listbox"] li:hover {
+        background: #333 !important;
+      }
 
-    /* Actual <input> or <textarea> inside those wrappers */
-    div[data-baseweb="input"]    input ,
-    div[data-baseweb="textarea"] textarea ,
-    div[data-baseweb="select"]   input  {
-        background-color: #000000 !important;
-        color: white !important;
-    }
-
-    input[type="number"]::-webkit-inner-spin-button,
-    input[type="number"]::-webkit-outer-spin-button {
-    background: #262730 !important;
-    }
-
-    div[data-baseweb="select"] {
-    background-color: #262730 !important;
-    color: white           !important;
-    border: 1px solid #444 !important;
-    border-radius: 6px     !important;
-    }
-
-    ul[role="listbox"] {
-    background-color: #262730 !important;
-    color: white           !important;
-  }
-    ul[role="listbox"] li {
-    background-color: #262730 !important;
-    color: white           !important;
-  }
-    ul[role="listbox"] li:hover {
-    background-color: #444    !important;
-  }
-    /* ========== BUTTONS ========== */
-    .stButton > button ,
-    .stDownloadButton > button {
-        background:#0E1117 !important;
-        color:white          !important;
-        border:none          !important;
-        border-radius:6px    !important;
-    }
-
-    /* ========== CHART & TABLE BACKGROUNDS ========== */
-    .plot-container                    ,
-    .js-plotly-plot .svg-container     ,
-    .stPlotlyChart                     ,
-    table , th , td                    {
-        background-color:#0E1117 !important;
-    }
-
+      /* Plotly charts */
+      .stPlotlyChart svg {
+        background: #121212 !important;
+      }
     </style>
     """, unsafe_allow_html=True)
-
 else:
-    # --- light mode =========================================================
-    st.markdown("""
-    <style>
-    html, body, [data-testid="stApp"] {
-        background-color:#f5f5f5;
-        color:#111;
-    }
-    /* light wrappers */
-    div[data-baseweb="input"],
-    div[data-baseweb="textarea"],
-    div[data-baseweb="select"],
-    input, textarea, select {
-        background:#ffffff !important;
-        color:#111     !important;
-        border:1px solid #ccc !important;
-        border-radius:6px     !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+    # (light mode – can leave default or add light overrides here)
+    pass
+
 
 
 
