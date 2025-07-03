@@ -16,15 +16,19 @@ st.markdown("### 📬 Contact Me")
 st.markdown(""" 
 **📧 Email:** [smart-rental-analyzer@outlook.com](mailto:smart-rental-analyzer@outlook.com)  
 """)
-
 st.markdown("""
-<style>
-#MainMenu, footer, header {visibility: hidden;}
-html, body {background-color: #5b5b5b; font-family: 'Inter', sans-serif;}
-.stButton > button, .stDownloadButton > button {border-radius:8px; font-weight:600;}
-</style>
-""", unsafe_allow_html=True)
+    <style>
+    html, body {
+        background-color: #1e1e1e;
+        color: white !important;
+        font-family: 'Inter', sans-serif;
+    }
 
+    #MainMenu, footer, header {
+        visibility: hidden;
+    }
+
+""", unsafe_allow_html=True)
 
 # -------- Top Navigation --------
 st.markdown("<h1 style='text-align:center;'>🏡 Smart Rental Analyzer</h1>", unsafe_allow_html=True)
