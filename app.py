@@ -43,7 +43,7 @@ if is_dark:
     div[data-baseweb="textarea"]         ,
     /* Select trigger (closed state) */
     div[data-baseweb="select"]           {
-        background-color: #262730 !important;
+        background-color: #000000 !important;
         color: white           !important;
         border: 1px solid #444 !important;
         border-radius: 6px      !important;
@@ -53,13 +53,13 @@ if is_dark:
     div[data-baseweb="input"]    input ,
     div[data-baseweb="textarea"] textarea ,
     div[data-baseweb="select"]   input  {
-        background-color: #262730 !important;
+        background-color: #000000 !important;
         color: white !important;
     }
 
     /* Dropdown list box & items */
-    ul[role="listbox"]                     { background:#262730 !important; }
-    ul[role="listbox"] > li               { background:#262730 !important; }
+    ul[role="listbox"]                     { background:#000000 !important; }
+    ul[role="listbox"] > li               { background:#000000 !important; }
     ul[role="listbox"] > li:hover         { background:#444    !important; }
 
     /* Dropdown / number‑input SVG icons (chevron, + / – buttons) */
@@ -69,7 +69,7 @@ if is_dark:
     /* ========== BUTTONS ========== */
     .stButton > button ,
     .stDownloadButton > button {
-        background:#262730 !important;
+        background:#000000 !important;
         color:white          !important;
         border:none          !important;
         border-radius:6px    !important;
