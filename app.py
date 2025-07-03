@@ -37,17 +37,13 @@ if is_dark:
     input[type="number"] { -moz-appearance: textfield; }   /* Firefox spinner */
 
     /* ========== BASEWEB WRAPPERS (Streamlit widgets) ========== */
-    /* Number, text, password etc. */
-    div[data-baseweb="input"]            ,
-    /* TextArea */
-    div[data-baseweb="textarea"]         ,
-    /* Select trigger (closed state) */
-    div[data-baseweb="select"]           {
-        background-color: #000000 !important;
-        color: white           !important;
-        border: 1px solid #000000 !important;
-        border-radius: 6px      !important;
-    }
+    div[data-baseweb="input"] input,
+    div[data-baseweb="textarea"] textarea,
+    input, textarea, select {
+    background-color: #262730 !important;
+    color: white           !important;
+    border: 1px solid #444 !important;
+    border-radius: 6px     !important;
 
     /* Actual <input> or <textarea> inside those wrappers */
     div[data-baseweb="input"]    input ,
@@ -57,19 +53,33 @@ if is_dark:
         color: white !important;
     }
 
-    /* Dropdown list box & items */
-    ul[role="listbox"]                     { background:#000000 !important; }
-    ul[role="listbox"] > li               { background:#000000 !important; }
-    ul[role="listbox"] > li:hover         { background:#000000    !important; }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+    background: #262730 !important;
+    }
 
-    /* Dropdown / number‑input SVG icons (chevron, + / – buttons) */
-    div[data-baseweb="select"] svg ,
-    div[data-baseweb="input"]  svg         { fill: white !important; }
+    div[data-baseweb="select"] {
+    background-color: #262730 !important;
+    color: white           !important;
+    border: 1px solid #444 !important;
+    border-radius: 6px     !important;
+    }
 
+    ul[role="listbox"] {
+    background-color: #262730 !important;
+    color: white           !important;
+  }
+    ul[role="listbox"] li {
+    background-color: #262730 !important;
+    color: white           !important;
+  }
+    ul[role="listbox"] li:hover {
+    background-color: #444    !important;
+  }
     /* ========== BUTTONS ========== */
     .stButton > button ,
     .stDownloadButton > button {
-        background:#000000 !important;
+        background:#0E1117 !important;
         color:white          !important;
         border:none          !important;
         border-radius:6px    !important;
@@ -80,7 +90,7 @@ if is_dark:
     .js-plotly-plot .svg-container     ,
     .stPlotlyChart                     ,
     table , th , td                    {
-        background-color:#000000 !important;
+        background-color:#0E1117 !important;
     }
 
     </style>
