@@ -20,7 +20,7 @@ st.markdown("""
 st.markdown("""
 <style>
 #MainMenu, footer, header {visibility: hidden;}
-html, body {background-color: #f6f9fc; font-family: 'Inter', sans-serif;}
+html, body {background-color: #414141; font-family: 'Inter', sans-serif;}
 .stButton > button, .stDownloadButton > button {border-radius:8px; font-weight:600;}
 </style>
 """, unsafe_allow_html=True)
@@ -71,7 +71,7 @@ if page == "🏠 Home":
             'Mobile Friendly',
             'AI Insights'
         ],
-        'This app': ['✓','✓','✓','✓','✓','✓','✓','✓','✓','🚧','🚧'],
+        'S.R.A': ['✓','✓','✓','✓','✓','✓','✓','✓','✓','🚧','🚧'],
         'BiggerPockets': ['✓','✓','✗','✗','✗','✗','✗','✓','✗','✓','✗'],
         'Stessa':          ['✗','✓','✗','✗','✗','✗','✗','✓','✗','✓','✗'],
         'Roofstock':       ['✓','✓','✗','✗','✗','✗','✗','✓','✓','✓','✗'],
