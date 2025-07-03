@@ -5,6 +5,18 @@ import plotly.graph_objs as go
 import numpy_financial as npf
 from fpdf import FPDF
 
+st.set_page_config(layout="wide")
+
+st.markdown("""
+    <style>
+    html, body, [data-testid="stApp"] {
+        background-color: #1e1e1e;
+        color: white;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+
 # -------- Configuration & Styles --------
 left, center, right = st.columns([2.25, 2, 0.8])
 with center:
