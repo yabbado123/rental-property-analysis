@@ -11,52 +11,59 @@ is_dark = st.toggle("🌗 Dark Mode", value=True)
 if is_dark:
     st.markdown("""
     <style>
-      /* App background & text */
+      /* ── APP CANVAS ── */
       html, body, [data-testid="stApp"] {
-        background: #121212 !important;
-        color: #eee !important;
+        background-color: #000000 !important;
+        color: #FFFFFF      !important;
       }
 
-      /* Buttons */
+      /* ── BUTTONS ── */
       .stButton > button,
       .stDownloadButton > button {
-        background: #1e1e1e !important;
-        color: #eee           !important;
-        border: none          !important;
-        border-radius: 4px    !important;
+        background-color: #000000 !important;
+        color: #FFFFFF           !important;
+        border: 1px solid #333   !important;
+        border-radius: 4px       !important;
       }
 
-      /* Text, Number, Textarea inputs & Select trigger */
+      /* ── INPUTS & TEXTAREAS ── */
       .stTextInput input,
       .stNumberInput input,
-      .stTextArea textarea,
-      .stSelectbox > div > div {
-        background: #1e1e1e !important;
-        color: #eee           !important;
-        border: 1px solid #ffffff  !important;
-        border-radius: 4px      !important;
+      .stTextArea textarea {
+        background-color: #000000 !important;
+        color: #FFFFFF           !important;
+        border: 1px solid #333   !important;
+        border-radius: 4px       !important;
       }
 
-      /* Dropdown menu items */
+      /* ── SELECTBOX TRIGGER ── */
+      .stSelectbox > div > div {
+        background-color: #000000 !important;
+        color: #FFFFFF           !important;
+        border: 1px solid #333   !important;
+        border-radius: 4px       !important;
+      }
+
+      /* ── DROPDOWN MENU ITEMS ── */
       ul[role="listbox"] {
-        background: #1e1e1e !important;
-        color: #eee           !important;
+        background-color: #000000 !important;
+        color: #FFFFFF           !important;
       }
       ul[role="listbox"] li:hover {
-        background: #333 !important;
+        background-color: #111111 !important;
       }
 
-      /* Plotly Charts */
+      /* ── CHARTS (Plotly) ── */
       .stPlotlyChart svg,
       .js-plotly-plot .plot-container,
       .plot-container {
-        background: #121212 !important;
+        background-color: #000000 !important;
       }
 
-      /* Tables */
+      /* ── TABLES ── */
       table, th, td {
-        background: #121212 !important;
-        color: #eee           !important;
+        background-color: #000000 !important;
+        color: #FFFFFF           !important;
       }
     </style>
     """, unsafe_allow_html=True)
