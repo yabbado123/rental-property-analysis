@@ -5,12 +5,60 @@ import plotly.graph_objs as go
 import numpy_financial as npf
 from fpdf import FPDF
 
+st.markdown("""
+<style>
+/* Entire app background */
+html, body, [data-testid="stApp"] {
+    background-color: #1e1e1e;
+    color: white;
+}
+
+/* Input widgets */
+input, textarea, select {
+    background-color: #2c2c2c !important;
+    color: white !important;
+    border: 1px solid #444 !important;
+}
+
+/* Streamlit widgets */
+.stTextInput > div > div > input,
+.stNumberInput input,
+.stTextArea textarea,
+.stSelectbox div[data-baseweb="select"] {
+    background-color: #2c2c2c !important;
+    color: white !important;
+    border: 1px solid #444 !important;
+}
+
+/* Buttons */
+.stButton > button,
+.stDownloadButton > button {
+    background-color: #2c2c2c !important;
+    color: white !important;
+    border: none;
+    border-radius: 6px;
+}
+
+/* Plotly charts and tables */
+.plot-container {
+    background-color: #1e1e1e !important;
+}
+
+table {
+    background-color: #2c2c2c !important;
+    color: white !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+
 st.set_page_config(layout="wide")
 
 st.markdown("""
     <style>
     html, body, [data-testid="stApp"] {
-        background-color: #1e1e1e;
+        background-color: #101010;
         color: white;
     }
     </style>
