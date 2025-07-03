@@ -45,7 +45,7 @@ if is_dark:
     div[data-baseweb="select"]           {
         background-color: #000000 !important;
         color: white           !important;
-        border: 1px solid #444 !important;
+        border: 1px solid #000000 !important;
         border-radius: 6px      !important;
     }
 
@@ -60,7 +60,7 @@ if is_dark:
     /* Dropdown list box & items */
     ul[role="listbox"]                     { background:#000000 !important; }
     ul[role="listbox"] > li               { background:#000000 !important; }
-    ul[role="listbox"] > li:hover         { background:#444    !important; }
+    ul[role="listbox"] > li:hover         { background:#000000    !important; }
 
     /* Dropdown / number‑input SVG icons (chevron, + / – buttons) */
     div[data-baseweb="select"] svg ,
@@ -80,7 +80,7 @@ if is_dark:
     .js-plotly-plot .svg-container     ,
     .stPlotlyChart                     ,
     table , th , td                    {
-        background-color:#0E1117 !important;
+        background-color:#000000 !important;
     }
 
     </style>
